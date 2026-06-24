@@ -359,11 +359,10 @@ body {
   </div>
 </div>
 
-<div id="password-section" style="background: #fff; padding: 15px; border: 2px solid #0ea5e9; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+<div id="password-section" style="display: none; background: #fff; padding: 15px; border: 2px solid #0ea5e9; border-radius: 8px; text-align: center; margin-bottom: 20px;">
     <label for="admin_pass" style="font-weight: bold; margin-right: 10px;">🔑 Mật khẩu trọng tài:</label>
     <input type="password" id="admin_pass" placeholder="Nhập mật khẩu..." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-    <p style="font-size: 0.8rem; color: #666; margin-top: 8px;">Nhập mật khẩu để được phép cập nhật tỉ số.</p>
-</div> 
+</div>
 <div class="section-title">📅 Bước 2: Theo dõi lịch thi đấu & Nhập điểm nhanh</div>
 <div class="schedule-box">
   <table class="sched-table">
@@ -690,6 +689,22 @@ const firebaseConfig = {
   appId: "1:490739341912:web:97c558dc2fa9ebb0bd882d",
   measurementId: "G-VNB07NKS1B"
 };
+
+
+//hidden password
+ let clickCount = 0;
+document.addEventListener('click', function() {
+  clickCount++;
+  if (clickCount === 10) {
+    const passSection = document.getElementById('password-section');
+    passSection.style.display = 'block'; // Hiện ô mật khẩu lên
+    alert("Đã mở khóa bảng điều khiển trọng tài!");
+  }
+  
+  // Tự reset sau 5 giây nếu không click đủ 10 lần
+  clearTimeout(window.clickTimer);
+  window.clickTimer = setTimeout(() => { clickCount = 0; }, 5000);
+}); 
 
 // Khởi tạo ứng dụng Firebase
 firebase.initializeApp(firebaseConfig);
