@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Giải Cầu Lông Sân Vườn - Mobile Optimized</title>
+<title>Giải Cầu Lông Sân Vườn - LocalStorage & Mobile</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -143,7 +143,7 @@ body {
 
 .player-display { font-weight: 600; color: var(--text); display: block; word-break: break-word; }
 
-/* ── MOBILE OPTIMIZED SCORE STEPPER ── */
+/* ── SCORE STEPPER ── */
 .score-stepper-container {
   display: inline-flex;
   align-items: center;
@@ -187,7 +187,6 @@ body {
 .score-in::-webkit-outer-spin-button,
 .score-in::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-/* Trạng thái thắng thua đổi màu cả cụm nút */
 .score-stepper.win-style { border-color: #86efac; background: #f0fdf4; }
 .score-stepper.win-style .score-in { background: #f0fdf4; color: var(--green); }
 .score-stepper.lose-style { border-color: #fca5a5; background: #fef2f2; }
@@ -195,8 +194,7 @@ body {
 
 .score-colon { font-weight: bold; color: var(--text3); font-size: 1.1rem; }
 
-/* Conditional Rows */
-.conditional-row { background: #fafafa; display: none; }
+.conditional-row { display: none; background: #fafafa; }
 .conditional-row.show { display: table-row; }
 
 /* ── FINAL RESULTS ── */
@@ -232,11 +230,24 @@ body {
 .final-name  { flex: 1; font-size: 0.85rem; font-weight: 700; color: var(--text); }
 .final-label { font-size: 0.6rem; color: var(--text3); font-weight: bold; }
 
-/* ── RESPONSIVE CHO ĐIỆN THOẠI (CHUYỂN BẢNG THÀNH CARDS) ── */
+/* Nút xóa làm mới dữ liệu giải đấu */
+.reset-container { text-align: center; margin-top: 20px; }
+.btn-reset {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+.btn-reset:active { background: #b91c1c; }
+
+/* ── RESPONSIVE CHUYỂN BẢNG THÀNH CARDS ── */
 @media (max-width: 768px) {
   .team-inputs { grid-template-columns: 1fr; gap: 8px; }
-  
-  /* Biến bảng thành danh sách thẻ */
   .sched-table thead { display: none; }
   .sched-table, .sched-table tbody, .sched-table tr, .sched-table td { display: block; width: 100%; }
   
@@ -249,43 +260,16 @@ body {
   }
   .sched-table tr.conditional-row { display: none; }
   .sched-table tr.conditional-row.show { display: block; }
-
-  .sched-table td {
-    border: none;
-    padding: 4px 0;
-    text-align: left;
-  }
-
-  /* Sắp xếp vị trí các thành phần trong Card */
-  .sched-table td:nth-child(1) { /* Lượt và nhãn */
-    display: inline-block;
-    font-weight: bold;
-    color: var(--text3);
-    font-size: 0.75rem;
-    margin-right: 8px;
-  }
+  .sched-table td { border: none; padding: 4px 0; text-align: left; }
+  .sched-table td:nth-child(1) { display: inline-block; font-weight: bold; color: var(--text3); font-size: 0.75rem; margin-right: 8px; }
   .sched-table td:nth-child(1)::before { content: "Lượt "; }
-  .sched-table td:nth-child(2) { display: inline-block; margin-right: 8px; } /* Trận đấu */
-  .sched-table td:nth-child(3) { display: inline-block; font-size: 0.75rem; color: var(--text2); font-weight: bold; } /* Set đấu */
+  .sched-table td:nth-child(2) { display: inline-block; margin-right: 8px; }
+  .sched-table td:nth-child(3) { display: inline-block; font-size: 0.75rem; color: var(--text2); font-weight: bold; }
   
-  /* Bố cục Đội 1 - Tỷ số - Đội 2 */
-  .sched-table td:nth-child(4), 
-  .sched-table td:nth-child(6) { 
-    display: block; 
-    width: 100%; 
-    padding: 6px 4px;
-    background: #fff;
-    border-radius: 6px;
-    margin: 4px 0;
-    border: 1px dashed var(--border);
-    padding-left: 8px !important;
+  .sched-table td:nth-child(4), .sched-table td:nth-child(6) { 
+    display: block; width: 100%; padding: 6px 4px; background: #fff; border-radius: 6px; margin: 4px 0; border: 1px dashed var(--border); padding-left: 8px !important;
   }
-  
-  .sched-table td:nth-child(5) { /* Khối nhập điểm nằm giữa */
-    display: flex;
-    justify-content: center;
-    padding: 8px 0;
-  }
+  .sched-table td:nth-child(5) { display: flex; justify-content: center; padding: 8px 0; }
 }
 </style>
 </head>
@@ -294,7 +278,7 @@ body {
 <div class="header">
   <div class="header-badge">🏸 Giải Cầu Lông Sân Vườn</div>
   <h1>Lịch Thi Đấu Xoay Tua</h1>
-  <p class="header-sub">Chạm nút ➕ hoặc ➖ để nhập điểm nhanh trên điện thoại không cần gõ bàn phím</p>
+  <p class="header-sub">Tự động lưu trữ thông minh. Tắt trình duyệt hoặc tải lại trang không sợ mất điểm!</p>
 </div>
 
 <div class="section-title">⬇ Nhập tên thành viên từng cặp (Đội)</div>
@@ -303,29 +287,29 @@ body {
     <div class="team-group">
       <div class="team-group-title" style="color:#2563eb;">🔵 Cặp đấu số 1 (BK1)</div>
       <div class="input-pair">
-        <input id="t1_p1" placeholder="Thành viên 1..." value="Team 1A" oninput="updateNames()">
-        <input id="t1_p2" placeholder="Thành viên 2..." value="Team 1B" oninput="updateNames()">
+        <input id="t1_p1" placeholder="Thành viên 1..." value="Team 1A" oninput="saveAndResetNames()">
+        <input id="t1_p2" placeholder="Thành viên 2..." value="Team 1B" oninput="saveAndResetNames()">
       </div>
     </div>
     <div class="team-group">
       <div class="team-group-title" style="color:#d97706;">🟡 Cặp đấu số 2 (BK1)</div>
       <div class="input-pair">
-        <input id="t2_p1" placeholder="Thành viên 1..." value="Team 2A" oninput="updateNames()">
-        <input id="t2_p2" placeholder="Thành viên 2..." value="Team 2B" oninput="updateNames()">
+        <input id="t2_p1" placeholder="Thành viên 1..." value="Team 2A" oninput="saveAndResetNames()">
+        <input id="t2_p2" placeholder="Thành viên 2..." value="Team 2B" oninput="saveAndResetNames()">
       </div>
     </div>
     <div class="team-group">
       <div class="team-group-title" style="color:#059669;">🟢 Cặp đấu số 3 (BK2)</div>
       <div class="input-pair">
-        <input id="t3_p1" placeholder="Thành viên 1..." value="Team 3A" oninput="updateNames()">
-        <input id="t3_p2" placeholder="Thành viên 2..." value="Team 3B" oninput="updateNames()">
+        <input id="t3_p1" placeholder="Thành viên 1..." value="Team 3A" oninput="saveAndResetNames()">
+        <input id="t3_p2" placeholder="Thành viên 2..." value="Team 3B" oninput="saveAndResetNames()">
       </div>
     </div>
     <div class="team-group">
       <div class="team-group-title" style="color:#e11d48;">🔴 Cặp đấu số 4 (BK2)</div>
       <div class="input-pair">
-        <input id="t4_p1" placeholder="Thành viên 1..." value="Team 4A" oninput="updateNames()">
-        <input id="t4_p2" placeholder="Thành viên 2..." value="Team 4B" oninput="updateNames()">
+        <input id="t4_p1" placeholder="Thành viên 1..." value="Team 4A" oninput="saveAndResetNames()">
+        <input id="t4_p2" placeholder="Thành viên 2..." value="Team 4B" oninput="saveAndResetNames()">
       </div>
     </div>
   </div>
@@ -354,13 +338,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l1_1">
               <button class="btn-step" onclick="step('s_l1_1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l1_1" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l1_1" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l1_1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l1_2">
               <button class="btn-step" onclick="step('s_l1_2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l1_2" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l1_2" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l1_2', 1)">+</button>
             </div>
           </div>
@@ -376,13 +360,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l2_3">
               <button class="btn-step" onclick="step('s_l2_3', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l2_3" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l2_3" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l2_3', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l2_4">
               <button class="btn-step" onclick="step('s_l2_4', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l2_4" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l2_4" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l2_4', 1)">+</button>
             </div>
           </div>
@@ -398,13 +382,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l3_1">
               <button class="btn-step" onclick="step('s_l3_1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l3_1" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l3_1" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l3_1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l3_2">
               <button class="btn-step" onclick="step('s_l3_2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l3_2" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l3_2" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l3_2', 1)">+</button>
             </div>
           </div>
@@ -420,13 +404,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l4_3">
               <button class="btn-step" onclick="step('s_l4_3', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l4_3" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l4_3" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l4_3', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l4_4">
               <button class="btn-step" onclick="step('s_l4_4', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l4_4" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l4_4" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l4_4', 1)">+</button>
             </div>
           </div>
@@ -443,13 +427,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l5_1">
               <button class="btn-step" onclick="step('s_l5_1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l5_1" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l5_1" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l5_1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l5_2">
               <button class="btn-step" onclick="step('s_l5_2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l5_2" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l5_2" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l5_2', 1)">+</button>
             </div>
           </div>
@@ -465,13 +449,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l6_3">
               <button class="btn-step" onclick="step('s_l6_3', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l6_3" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l6_3" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l6_3', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l6_4">
               <button class="btn-step" onclick="step('s_l6_4', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l6_4" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l6_4" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l6_4', 1)">+</button>
             </div>
           </div>
@@ -488,13 +472,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l7_lost1">
               <button class="btn-step" onclick="step('s_l7_lost1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l7_lost1" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l7_lost1" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l7_lost1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l7_lost2">
               <button class="btn-step" onclick="step('s_l7_lost2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l7_lost2" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l7_lost2" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l7_lost2', 1)">+</button>
             </div>
           </div>
@@ -510,13 +494,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l8_win1">
               <button class="btn-step" onclick="step('s_l8_win1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l8_win1" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l8_win1" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l8_win1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l8_win2">
               <button class="btn-step" onclick="step('s_l8_win2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l8_win2" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l8_win2" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l8_win2', 1)">+</button>
             </div>
           </div>
@@ -532,13 +516,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l9_lost1">
               <button class="btn-step" onclick="step('s_l9_lost1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l9_lost1" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l9_lost1" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l9_lost1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l9_lost2">
               <button class="btn-step" onclick="step('s_l9_lost2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l9_lost2" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l9_lost2" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l9_lost2', 1)">+</button>
             </div>
           </div>
@@ -554,13 +538,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l10_win1">
               <button class="btn-step" onclick="step('s_l10_win1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l10_win1" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l10_win1" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l10_win1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l10_win2">
               <button class="btn-step" onclick="step('s_l10_win2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l10_win2" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l10_win2" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l10_win2', 1)">+</button>
             </div>
           </div>
@@ -577,13 +561,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l11_lost1">
               <button class="btn-step" onclick="step('s_l11_lost1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l11_lost1" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l11_lost1" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l11_lost1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l11_lost2">
               <button class="btn-step" onclick="step('s_l11_lost2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l11_lost2" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l11_lost2" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l11_lost2', 1)">+</button>
             </div>
           </div>
@@ -599,13 +583,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l12_win1">
               <button class="btn-step" onclick="step('s_l12_win1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l12_win1" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l12_win1" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l12_win1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l12_win2">
               <button class="btn-step" onclick="step('s_l12_win2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l12_win2" class="score-in" value="" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l12_win2" class="score-in" oninput="calcAll()">
               <button class="btn-step" onclick="step('s_l12_win2', 1)">+</button>
             </div>
           </div>
@@ -640,15 +624,31 @@ body {
   </div>
 </div>
 
+<div class="reset-container">
+  <button class="btn-reset" onclick="clearTournament()">🔄 Xóa hết làm mới giải đấu</button>
+</div>
+
 <script>
-// Hàm xử lý tăng/giảm điểm bằng nút nhấn di động
+// Danh sách tất cả ID điểm số cần lưu trữ
+const scoreIds = [
+  's_l1_1','s_l1_2', 's_l2_3','s_l2_4', 's_l3_1','s_l3_2', 's_l4_3','s_l4_4',
+  's_l5_1','s_l5_2', 's_l6_3','s_l6_4', 's_l7_lost1','s_l7_lost2', 's_l8_win1','s_l8_win2',
+  's_l9_lost1','s_l9_lost2', 's_l10_win1','s_l10_win2', 's_l11_lost1','s_l11_lost2', 's_l12_win1','s_l12_win2'
+];
+
+// Danh sách ID tên vận động viên
+const nameIds = [
+  't1_p1','t1_p2', 't2_p1','t2_p2', 't3_p1','t3_p2', 't4_p1','t4_p2'
+];
+
+// Hàm tăng giảm điểm bằng nút bấm di động
 function step(id, amount) {
   const el = document.getElementById(id);
   let current = parseInt(el.value);
   if (isNaN(current)) current = 0;
   
   let newValue = current + amount;
-  if (newValue < 0) newValue = 0; // Điểm không được âm
+  if (newValue < 0) newValue = 0;
   
   el.value = newValue;
   calcAll();
@@ -659,6 +659,14 @@ function getTeamName(num) {
   const p2 = document.getElementById(`t${num}_p2`).value.trim();
   if(!p1 && !p2) return `Cặp ${num}`;
   return `${p1} + ${p2}`;
+}
+
+function saveAndResetNames() {
+  // Lưu tên vào LocalStorage khi gõ
+  nameIds.forEach(id => {
+    localStorage.setItem(id, document.getElementById(id).value);
+  });
+  updateNames();
 }
 
 function updateNames() {
@@ -704,6 +712,11 @@ function styleInputPair(id1, id2) {
 }
 
 function calcAll() {
+  // Tự động lưu toàn bộ điểm vào LocalStorage bất cứ khi nào có thay đổi
+  scoreIds.forEach(id => {
+    localStorage.setItem(id, document.getElementById(id).value);
+  });
+
   // Đồng bộ màu sắc cặp nút bấm
   const pairs = [
     ['s_l1_1','s_l1_2'], ['s_l2_3','s_l2_4'], ['s_l3_1','s_l3_2'], ['s_l4_3','s_l4_4'],
@@ -752,7 +765,7 @@ function calcAll() {
   if(bk2_3 >= 2) { winBK2 = getTeamName(3); lostBK2 = getTeamName(4); }
   else if(bk2_4 >= 2) { winBK2 = getTeamName(4); lostBK2 = getTeamName(3); }
 
-  // Gán nhãn cho nhánh Hạng Ba và Chung Kết
+  // Gán nhãn tên cho nhánh Hạng Ba và Chung Kết
   const lb_w1 = winBK1 || "Chờ Thắng BK1";
   const lb_w2 = winBK2 || "Chờ Thắng BK2";
   const lb_l1 = lostBK1 || "Chờ Thua BK1";
@@ -812,8 +825,3 @@ function calcAll() {
   else if(tb_2 >= 2) { document.getElementById('f_3rd').textContent = lb_l2; document.getElementById('f_4th').textContent = lb_l1; }
   else { document.getElementById('f_3rd').textContent = "Chờ tranh hạng ba..."; document.getElementById('f_4th').textContent = "—"; }
 }
-
-updateNames();
-</script>
-</body>
-</html>
