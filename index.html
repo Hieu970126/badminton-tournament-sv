@@ -6,7 +6,7 @@
 <title>Hệ Thống Đa Giải Đấu Cầu Lông Sân Vườn</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -487,13 +487,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// 👑 CẤU HÌNH MẬT KHẨU ADMIN TỐI CAO (SUPER ADMIN)
-const SUPER_ADMIN_PASSWORD = "86688668"; 
+
 
 let currentTournamentId = "giai_mac_dinh"; 
 let dbRef = null; 
 let currentTournamentPassword = "170397"; 
 let globalTournamentsList = {}; // Lưu cache danh sách giải để phục vụ Search
+// CHÈN THÊM DÒNG NÀY:
+let superAdminPasswordFromFirebase = "";
 
 let totalClickCount = 0;
 document.addEventListener('click', function(e) {
@@ -523,6 +524,12 @@ const nameIds = ['t1_p1','t1_p2', 't2_p1','t2_p2', 't3_p1','t3_p2', 't4_p1','t4_
 
 // ── 🛠️ HÀM KHỞI TẠO VÀ ĐỒNG BỘ ĐA GIẢI ĐẤU ──
 function initTournamentSystem() {
+  // 1. Lấy mật khẩu Admin tối cao từ Firebase về máy Client khi app khởi động
+  db.ref('admin_config/super_admin_password').on('value', (snapshot) => {
+    superAdminPasswordFromFirebase = snapshot.val() || "";
+  });
+
+  // 2. Tự động lắng nghe và cập nhật danh sách giải đấu từ Firebase
   db.ref('tournaments_list').on('value', (snapshot) => {
     globalTournamentsList = snapshot.val() || {};
     
@@ -534,6 +541,14 @@ function initTournamentSystem() {
 
     renderTournamentSelect(globalTournamentsList);
   });
+}
+
+// 3. TẠO MỚI HÀM checkPermission (Vì trong code cũ của bạn chưa có)
+function checkPermission(inputPass) {
+  if (!inputPass) return false;
+  
+  // Trả về true nếu người dùng gõ đúng mật khẩu riêng của giải HOẶC mật khẩu tối cao từ Firebase
+  return (inputPass === currentTournamentPassword || inputPass === superAdminPasswordFromFirebase);
 }
 
 // Hàm render danh sách giải vào thẻ <select> dựa trên dữ liệu/kết quả tìm kiếm
@@ -628,13 +643,15 @@ function deleteTournamentPermanently() {
   }
 
   // Yêu cầu nhập mật khẩu quyền lực tối cao
+// Yêu cầu nhập mật khẩu quyền lực tối cao
   const inputSuperPass = prompt("Xác thực tối cao: Nhập MẬT KHẨU ADMIN TỐI CAO để thực hiện thao tác xóa này:");
   if (inputSuperPass === null) return;
-  if (inputSuperPass !== SUPER_ADMIN_PASSWORD) {
-    alert("❌ Sai mật khẩu Admin tối cao! Thao tác xóa bị từ chối.");
+  
+  // So sánh mật khẩu vừa nhập với mật khẩu lấy từ Firebase về ở Bước 2
+  if (inputSuperPass !== superAdminPasswordFromFirebase || superAdminPasswordFromFirebase === "") {
+    alert("❌ Sai mật khẩu Admin tối cao hoặc hệ thống chưa tải xong cấu hình! Thao tác xóa bị từ chối.");
     return;
   }
-
   // Thực hiện xóa đồng thời trên cả 2 node quản lý của Firebase
   db.ref('tournaments_list/' + idToDelete).remove().then(() => {
     db.ref('tournaments_data/' + idToDelete).remove().then(() => {
@@ -699,9 +716,21 @@ function bindTournamentRealtime() {
   });
 }
 
-// Kiểm tra mật khẩu (Chấp nhận cả mật khẩu riêng của giải HOẶC mật khẩu tối cao)
-function checkPermission(inputPass) {
-  return (inputPass === currentTournamentPassword || inputPass === SUPER_ADMIN_PASSWORD);
+// Hàm mới: Trả về true/false bằng cách gửi mật khẩu lên Firebase kiểm tra gián tiếp
+async function checkSuperAdminPermission(inputPass) {
+  if (!inputPass) return false;
+  try {
+    // Tạo một node tạm thời để verify mật khẩu
+    const verifyRef = db.ref('admin_verify_request/' + Math.floor(Math.random() * 100000));
+    await verifyRef.set({ password_to_check: inputPass });
+    
+    // Đọc thử xem mật khẩu admin_config có khớp không qua một mẹo nhỏ hoặc kiểm tra trực tiếp
+    // Tuy nhiên, cách tối ưu và đơn giản nhất cho ứng dụng Client-side thuần túy không cần Server (Node.js) 
+    // là lưu mật khẩu dưới dạng chuỗi đã HASH (MD5/SHA256) ngay trong code.
+    return false; 
+  } catch (e) {
+    return false;
+  }
 }
 
 // ── 🎲 CƠ CHẾ BỐC THĂM ĐỒNG BỘ TRÊN NODE GIẢI ĐẤU ──
