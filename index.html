@@ -673,8 +673,8 @@ body {
 </div>
 
 <div class="reset-container">
-  <button class="btn-secondary" onclick="resetDrawOnly()">🎲 Reset lượt Bốc Thăm</button>
-  <button class="btn-reset" onclick="clearTournament()">🔄 Xóa sạch làm lại từ đầu</button>
+  <button class="btn-secondary" onclick="resetDrawOnly()" style="display: none;" >🎲 Reset lượt Bốc Thăm</button>
+  <button class="btn-reset" onclick="clearTournament()" style="display: none;">🔄 Xóa sạch làm lại từ đầu</button>
 </div>
 
 <script>
@@ -689,13 +689,31 @@ const firebaseConfig = {
   appId: "1:490739341912:web:97c558dc2fa9ebb0bd882d",
   measurementId: "G-VNB07NKS1B"
 };
-
+// hidden reset
+ let adminClickCount = 0;
+document.addEventListener('click', function(e) {
+  // Chỉ tính khi click vào background hoặc những vùng trống
+  // Tránh việc click nhầm vào nút đang hoạt động
+  if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+    adminClickCount++;
+    
+    if (adminClickCount === 25) {
+      document.getElementById('btn-reset-draw').style.display = 'inline-block';
+      document.getElementById('btn-delete-all').style.display = 'inline-block';
+      alert("⚠️ Đã mở khóa quyền quản trị cao cấp!");
+    }
+    
+    // Reset bộ đếm sau 10 giây nếu click quá chậm
+    clearTimeout(window.adminTimer);
+    window.adminTimer = setTimeout(() => { adminClickCount = 0; }, 10000);
+  }
+}); 
 
 //hidden password
  let clickCount = 0;
 document.addEventListener('click', function() {
   clickCount++;
-  if (clickCount === 10) {
+  if (clickCount === 15) {
     const passSection = document.getElementById('password-section');
     passSection.style.display = 'block'; // Hiện ô mật khẩu lên
     alert("Đã mở khóa bảng điều khiển trọng tài!");
