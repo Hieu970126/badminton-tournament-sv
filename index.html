@@ -796,6 +796,13 @@ function getMatchRules(id) {
 
 // HÀM STEPPER CẬP NHẬT BUSINESS RULES & ĐỒNG BỘ FIREBASE
 function step(id, amount) {
+ // 1. Kiểm tra mật khẩu trước khi làm bất cứ điều gì
+  const pass = document.getElementById('admin_pass').value;
+  if (pass !== "170397") { // Thay "123456" bằng mật khẩu bạn muốn
+    alert("Sai mật khẩu trọng tài! Chỉ người có mật khẩu mới được sửa điểm.");
+    return;
+  }
+  
   const el = document.getElementById(id);
   let current = parseInt(el.value);
   if (isNaN(current)) current = 0;
@@ -841,6 +848,14 @@ function step(id, amount) {
 
 // Xử lý khi người dùng tự tay nhập/sửa số trực tiếp từ bàn phím
 function handleInputManual(id) {
+  const pass = document.getElementById('admin_pass').value;
+  if (pass !== "170397") {
+    alert("Bạn không có quyền sửa!");
+    // Reset lại giá trị cũ từ Firebase nếu họ cố tình nhập tay
+    location.reload(); 
+    return;
+  }
+
   const el = document.getElementById(id);
   let val = parseInt(el.value);
   
