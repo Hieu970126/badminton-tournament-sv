@@ -673,8 +673,8 @@ body {
 </div>
 
 <div class="reset-container">
-  <button class="btn-secondary" onclick="resetDrawOnly()" style="display: none;" >🎲 Reset lượt Bốc Thăm</button>
-  <button class="btn-reset" onclick="clearTournament()" style="display: none;">🔄 Xóa sạch làm lại từ đầu</button>
+  <button id="btn-draw-reset" class="btn-secondary" onclick="resetDrawOnly()" style="display: none;">🎲 Reset lượt Bốc Thăm</button>
+  <button id="btn-tournament-clear" class="btn-reset" onclick="clearTournament()" style="display: none;">🔄 Xóa sạch làm lại từ đầu</button>
 </div>
 
 <script>
@@ -690,24 +690,30 @@ const firebaseConfig = {
   measurementId: "G-VNB07NKS1B"
 };
 // hidden reset
- let adminClickCount = 0;
+ let totalClickCount = 0;
+
 document.addEventListener('click', function(e) {
-  // Chỉ tính khi click vào background hoặc những vùng trống
-  // Tránh việc click nhầm vào nút đang hoạt động
+  // Chỉ tính click vào những vùng trống, không click vào nút/input
   if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
-    adminClickCount++;
+    totalClickCount++;
     
-    if (adminClickCount === 25) {
-      document.getElementById('btn-reset-draw').style.display = 'inline-block';
-      document.getElementById('btn-delete-all').style.display = 'inline-block';
-      alert("⚠️ Đã mở khóa quyền quản trị cao cấp!");
+    // Mốc 10 click: Hiện ô mật khẩu
+    if (totalClickCount === 10) {
+      document.getElementById('password-section').style.display = 'block';
     }
     
-    // Reset bộ đếm sau 10 giây nếu click quá chậm
+    // Mốc 25 click: Hiện 2 nút quản trị
+    if (totalClickCount === 25) {
+      document.getElementById('btn-draw-reset').style.display = 'inline-block';
+      document.getElementById('btn-tournament-clear').style.display = 'inline-block';
+      alert("⚠️ Chế độ Quản trị đã được mở khóa!");
+    }
+    
+    // Reset sau 10 giây nếu không click tiếp
     clearTimeout(window.adminTimer);
-    window.adminTimer = setTimeout(() => { adminClickCount = 0; }, 10000);
+    window.adminTimer = setTimeout(() => { totalClickCount = 0; }, 10000);
   }
-}); 
+});
 
 //hidden password
  let clickCount = 0;
