@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Giải Cầu Lông Sân Vườn</title>
+<title>Giải Cầu Lông Sân Vườn - Sơ Đồ Thi Đấu</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -211,7 +211,7 @@ body {
   border: 1px solid transparent;
   transition: background 0.2s, border-color 0.2s;
 }
-.team-row.winner-row { background: #f0fdf4; border-color: #bbf7d0; }
+.team-row.winner-row { background: #f0fdf4; border-color: #bbf7d0; font-weight: bold; }
 .team-row.loser-row  { background: #fafafa; opacity: 0.6; }
 
 .team-row-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -270,12 +270,12 @@ body {
   gap: 5px;
 }
 .score-cell input {
-  width: 36px;
-  height: 26px;
+  width: 42px;
+  height: 30px;
   border: 1.5px solid var(--border2);
   border-radius: 5px;
   text-align: center;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text);
   background: var(--surface2);
@@ -391,11 +391,29 @@ body {
   font-weight: 700;
 }
 
+.btn-reset-container {
+  max-width: 440px;
+  margin: 25px auto 0;
+}
+.btn-reset-system {
+  width: 100%;
+  padding: 12px;
+  background-color: #64748b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-reset-system:hover { background-color: #475569; }
+
 @media (max-width: 600px) {
   .setup-grid { grid-template-columns: repeat(2, 1fr); }
   .match-wrap  { grid-template-columns: 1fr; }
   .rules-wrap  { grid-template-columns: 1fr; }
-  .score-cell input { width: 30px; }
+  .score-cell input { width: 36px; }
 }
 </style>
 </head>
@@ -407,30 +425,28 @@ body {
   <p class="header-sub">4 Đội · Loại trực tiếp · Bán kết Set 15 · Chung kết & Hạng Ba Set 21 · Xoay tua sau mỗi set</p>
 </div>
 
-<!-- TEAM SETUP -->
 <div class="section-title">⬇ Nhập tên 4 đội tham dự</div>
 <div class="setup-grid">
   <div class="team-card">
     <div class="team-card-label"><div class="dot d1"></div><span class="c1">Đội 1</span></div>
-    <input class="team-name-input" id="tn1" placeholder="Tên đội 1..." oninput="refreshAll()">
+    <input class="team-name-input" id="tn1" placeholder="Tên đội 1..." oninput="refreshAll(); saveState();">
   </div>
   <div class="team-card">
     <div class="team-card-label"><div class="dot d2"></div><span class="c2">Đội 2</span></div>
-    <input class="team-name-input" id="tn2" placeholder="Tên đội 2..." oninput="refreshAll()">
+    <input class="team-name-input" id="tn2" placeholder="Tên đội 2..." oninput="refreshAll(); saveState();">
   </div>
   <div class="team-card">
     <div class="team-card-label"><div class="dot d3"></div><span class="c3">Đội 3</span></div>
-    <input class="team-name-input" id="tn3" placeholder="Tên đội 3..." oninput="refreshAll()">
+    <input class="team-name-input" id="tn3" placeholder="Tên đội 3..." oninput="refreshAll(); saveState();">
   </div>
   <div class="team-card">
     <div class="team-card-label"><div class="dot d4"></div><span class="c4">Đội 4</span></div>
-    <input class="team-name-input" id="tn4" placeholder="Tên đội 4..." oninput="refreshAll()">
+    <input class="team-name-input" id="tn4" placeholder="Tên đội 4..." oninput="refreshAll(); saveState();">
   </div>
 </div>
 
 <div class="main">
 
-  <!-- BÁN KẾT -->
   <div class="phase-row">
     <span class="phase-badge bk-badge">Bán Kết</span>
     <div class="phase-line"></div>
@@ -438,13 +454,11 @@ body {
   </div>
 
   <div class="match-wrap">
-    <!-- BK1 -->
     <div class="match-card bk-card" id="card-bk1">
       <div class="match-header">
         <span class="match-tag bk-tag">Bán Kết 1</span>
         <span class="match-winner-display" id="bk1-win-display"></span>
       </div>
-      <!-- Team rows summary -->
       <div class="team-row" id="bk1-row-a">
         <div class="team-row-dot d1"></div>
         <div class="team-row-name" id="bk1-name-a">Đội 1</div>
@@ -456,7 +470,6 @@ body {
         <div class="team-row-name" id="bk1-name-b">Đội 2</div>
         <div class="team-row-score" id="bk1-sets-b">0</div>
       </div>
-      <!-- SET TABLE -->
       <div class="set-table-wrap">
         <div class="set-table-title">Nhập điểm từng set · Tối đa 15 điểm</div>
         <table class="set-table">
@@ -469,16 +482,16 @@ body {
           <tbody>
             <tr>
               <td><div class="set-team-cell"><div class="dot d1" style="flex-shrink:0"></div><span id="bk1-tbl-a">Đội 1</span></div></td>
-              <td class="score-cell"><input type="number" id="bk1-s1a" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
-              <td class="score-cell"><input type="number" id="bk1-s2a" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
-              <td class="score-cell"><input type="number" id="bk1-s3a" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk1-s1a" min="0" max="30" placeholder="–" oninput="calcMatch('bk1'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk1-s2a" min="0" max="30" placeholder="–" oninput="calcMatch('bk1'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk1-s3a" min="0" max="30" placeholder="–" oninput="calcMatch('bk1'); saveState();"></td>
               <td class="set-result-cell" id="bk1-wina">–</td>
             </tr>
             <tr>
               <td><div class="set-team-cell"><div class="dot d2" style="flex-shrink:0"></div><span id="bk1-tbl-b">Đội 2</span></div></td>
-              <td class="score-cell"><input type="number" id="bk1-s1b" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
-              <td class="score-cell"><input type="number" id="bk1-s2b" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
-              <td class="score-cell"><input type="number" id="bk1-s3b" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk1-s1b" min="0" max="30" placeholder="–" oninput="calcMatch('bk1'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk1-s2b" min="0" max="30" placeholder="–" oninput="calcMatch('bk1'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk1-s3b" min="0" max="30" placeholder="–" oninput="calcMatch('bk1'); saveState();"></td>
               <td class="set-result-cell" id="bk1-winb">–</td>
             </tr>
           </tbody>
@@ -487,7 +500,6 @@ body {
       </div>
     </div>
 
-    <!-- BK2 -->
     <div class="match-card bk-card" id="card-bk2">
       <div class="match-header">
         <span class="match-tag bk-tag">Bán Kết 2</span>
@@ -516,16 +528,16 @@ body {
           <tbody>
             <tr>
               <td><div class="set-team-cell"><div class="dot d3" style="flex-shrink:0"></div><span id="bk2-tbl-a">Đội 3</span></div></td>
-              <td class="score-cell"><input type="number" id="bk2-s1a" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
-              <td class="score-cell"><input type="number" id="bk2-s2a" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
-              <td class="score-cell"><input type="number" id="bk2-s3a" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk2-s1a" min="0" max="30" placeholder="–" oninput="calcMatch('bk2'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk2-s2a" min="0" max="30" placeholder="–" oninput="calcMatch('bk2'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk2-s3a" min="0" max="30" placeholder="–" oninput="calcMatch('bk2'); saveState();"></td>
               <td class="set-result-cell" id="bk2-wina">–</td>
             </tr>
             <tr>
               <td><div class="set-team-cell"><div class="dot d4" style="flex-shrink:0"></div><span id="bk2-tbl-b">Đội 4</span></div></td>
-              <td class="score-cell"><input type="number" id="bk2-s1b" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
-              <td class="score-cell"><input type="number" id="bk2-s2b" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
-              <td class="score-cell"><input type="number" id="bk2-s3b" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk2-s1b" min="0" max="30" placeholder="–" oninput="calcMatch('bk2'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk2-s2b" min="0" max="30" placeholder="–" oninput="calcMatch('bk2'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="bk2-s3b" min="0" max="30" placeholder="–" oninput="calcMatch('bk2'); saveState();"></td>
               <td class="set-result-cell" id="bk2-winb">–</td>
             </tr>
           </tbody>
@@ -535,13 +547,11 @@ body {
     </div>
   </div>
 
-  <!-- ARROW -->
   <div class="bracket-arrow">
     <svg width="18" height="24" viewBox="0 0 18 24"><line x1="9" y1="0" x2="9" y2="17" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/><polygon points="4,14 9,22 14,14" fill="#cbd5e1"/></svg>
     <span class="bracket-arrow-lbl">người thắng vào chung kết · người thua tranh hạng ba</span>
   </div>
 
-  <!-- CHUNG KẾT + TRANH HẠNG BA -->
   <div class="phase-row">
     <span class="phase-badge ck-badge">🏆 Chung Kết</span>
     <div class="phase-line"></div>
@@ -549,7 +559,6 @@ body {
   </div>
 
   <div class="match-wrap single">
-    <!-- CHUNG KẾT -->
     <div class="match-card ck-card">
       <div class="match-header">
         <span class="match-tag ck-tag">⚔️ Chung Kết · Set 21</span>
@@ -578,16 +587,16 @@ body {
           <tbody>
             <tr>
               <td><div class="set-team-cell"><div class="dot" id="ck-tbl-dot-a" style="background:#94a3b8;flex-shrink:0"></div><span id="ck-tbl-a">Thắng BK1</span></div></td>
-              <td class="score-cell"><input type="number" id="ck-s1a" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
-              <td class="score-cell"><input type="number" id="ck-s2a" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
-              <td class="score-cell"><input type="number" id="ck-s3a" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="ck-s1a" min="0" max="35" placeholder="–" oninput="calcMatch('ck'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="ck-s2a" min="0" max="35" placeholder="–" oninput="calcMatch('ck'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="ck-s3a" min="0" max="35" placeholder="–" oninput="calcMatch('ck'); saveState();"></td>
               <td class="set-result-cell" id="ck-wina">–</td>
             </tr>
             <tr>
               <td><div class="set-team-cell"><div class="dot" id="ck-tbl-dot-b" style="background:#94a3b8;flex-shrink:0"></div><span id="ck-tbl-b">Thắng BK2</span></div></td>
-              <td class="score-cell"><input type="number" id="ck-s1b" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
-              <td class="score-cell"><input type="number" id="ck-s2b" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
-              <td class="score-cell"><input type="number" id="ck-s3b" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="ck-s1b" min="0" max="35" placeholder="–" oninput="calcMatch('ck'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="ck-s2b" min="0" max="35" placeholder="–" oninput="calcMatch('ck'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="ck-s3b" min="0" max="35" placeholder="–" oninput="calcMatch('ck'); saveState();"></td>
               <td class="set-result-cell" id="ck-winb">–</td>
             </tr>
           </tbody>
@@ -597,7 +606,6 @@ body {
     </div>
   </div>
 
-  <!-- TRANH HẠNG BA -->
   <div class="phase-row" style="margin-top:20px">
     <span class="phase-badge tb-badge">🥉 Tranh Hạng Ba</span>
     <div class="phase-line"></div>
@@ -633,16 +641,16 @@ body {
           <tbody>
             <tr>
               <td><div class="set-team-cell"><div class="dot" id="tb-tbl-dot-a" style="background:#94a3b8;flex-shrink:0"></div><span id="tb-tbl-a">Thua BK1</span></div></td>
-              <td class="score-cell"><input type="number" id="tb-s1a" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
-              <td class="score-cell"><input type="number" id="tb-s2a" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
-              <td class="score-cell"><input type="number" id="tb-s3a" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="tb-s1a" min="0" max="35" placeholder="–" oninput="calcMatch('tb'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="tb-s2a" min="0" max="35" placeholder="–" oninput="calcMatch('tb'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="tb-s3a" min="0" max="35" placeholder="–" oninput="calcMatch('tb'); saveState();"></td>
               <td class="set-result-cell" id="tb-wina">–</td>
             </tr>
             <tr>
               <td><div class="set-team-cell"><div class="dot" id="tb-tbl-dot-b" style="background:#94a3b8;flex-shrink:0"></div><span id="tb-tbl-b">Thua BK2</span></div></td>
-              <td class="score-cell"><input type="number" id="tb-s1b" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
-              <td class="score-cell"><input type="number" id="tb-s2b" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
-              <td class="score-cell"><input type="number" id="tb-s3b" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="tb-s1b" min="0" max="35" placeholder="–" oninput="calcMatch('tb'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="tb-s2b" min="0" max="35" placeholder="–" oninput="calcMatch('tb'); saveState();"></td>
+              <td class="score-cell"><input type="number" inputmode="numeric" id="tb-s3b" min="0" max="35" placeholder="–" oninput="calcMatch('tb'); saveState();"></td>
               <td class="set-result-cell" id="tb-winb">–</td>
             </tr>
           </tbody>
@@ -652,7 +660,6 @@ body {
     </div>
   </div>
 
-  <!-- KẾT QUẢ CHUNG CUỘC -->
   <div class="final-box">
     <div class="final-title">🏆 Kết Quả Chung Cuộc</div>
     <div class="final-row">
@@ -676,205 +683,3 @@ body {
       <div class="final-label">HẠNG TƯ</div>
     </div>
   </div>
-
-  <!-- QUY ĐỊNH -->
-  <div class="rules-wrap">
-    <div class="rules-card">
-      <div class="rules-card-title">📋 Quy định Set 15 (Bán kết)</div>
-      <ul>
-        <li>Đội chạm 15 điểm trước thắng set đó</li>
-        <li>Đổi sân ngay khi một đội chạm mốc 8 điểm</li>
-        <li>Nếu hòa 14-14: cần hơn 2 điểm, tối đa 17</li>
-        <li>Thắng 2 set trước là thắng trận</li>
-        <li>Xoay tua sau Set 1, xoay lại nếu có Set 3</li>
-      </ul>
-    </div>
-    <div class="rules-card">
-      <div class="rules-card-title">📋 Quy định Set 21 (CK & Hạng Ba)</div>
-      <ul>
-        <li>Đội chạm 21 điểm trước thắng set đó</li>
-        <li>Đổi sân ngay khi một đội chạm mốc 11 điểm</li>
-        <li>Nếu hòa 20-20: cần hơn 2 điểm, tối đa 25</li>
-        <li>Thắng 2 set trước là thắng trận</li>
-        <li>Xoay tua sau Set 1, xoay lại nếu có Set 3</li>
-      </ul>
-    </div>
-  </div>
-
-</div><!-- end main -->
-
-<script>
-// ── STATE ──
-const DOTS = { 1: '#3b82f6', 2: '#f59e0b', 3: '#10b981', 4: '#f43f5e' };
-// bk1: team1 vs team2 | bk2: team3 vs team4
-const BK = {
-  bk1: { a: 1, b: 2 },
-  bk2: { a: 3, b: 4 },
-};
-let winners = { bk1: null, bk2: null }; // team index (1-4)
-let losers  = { bk1: null, bk2: null };
-
-function teamName(idx) {
-  const v = document.getElementById(`tn${idx}`).value.trim();
-  return v || `Đội ${idx}`;
-}
-
-function refreshAll() {
-  // Update all name displays
-  ['bk1','bk2'].forEach(m => {
-    const {a, b} = BK[m];
-    document.getElementById(`${m}-name-a`).textContent  = teamName(a);
-    document.getElementById(`${m}-name-b`).textContent  = teamName(b);
-    document.getElementById(`${m}-tbl-a`).textContent   = teamName(a);
-    document.getElementById(`${m}-tbl-b`).textContent   = teamName(b);
-  });
-  updateFinalNames();
-  updateFinalResults();
-}
-
-function updateFinalNames() {
-  // CK
-  const ckA = winners.bk1 ? teamName(winners.bk1) : 'Thắng BK1';
-  const ckB = winners.bk2 ? teamName(winners.bk2) : 'Thắng BK2';
-  const tbA = losers.bk1  ? teamName(losers.bk1)  : 'Thua BK1';
-  const tbB = losers.bk2  ? teamName(losers.bk2)  : 'Thua BK2';
-
-  document.getElementById('ck-name-a').textContent  = ckA;
-  document.getElementById('ck-name-b').textContent  = ckB;
-  document.getElementById('ck-tbl-a').textContent   = ckA;
-  document.getElementById('ck-tbl-b').textContent   = ckB;
-  document.getElementById('tb-name-a').textContent  = tbA;
-  document.getElementById('tb-name-b').textContent  = tbB;
-  document.getElementById('tb-tbl-a').textContent   = tbA;
-  document.getElementById('tb-tbl-b').textContent   = tbB;
-
-  const ckDotA = winners.bk1 ? DOTS[winners.bk1] : '#94a3b8';
-  const ckDotB = winners.bk2 ? DOTS[winners.bk2] : '#94a3b8';
-  const tbDotA = losers.bk1  ? DOTS[losers.bk1]  : '#94a3b8';
-  const tbDotB = losers.bk2  ? DOTS[losers.bk2]  : '#94a3b8';
-
-  ['ck-dot-a','ck-tbl-dot-a'].forEach(id => document.getElementById(id).style.background = ckDotA);
-  ['ck-dot-b','ck-tbl-dot-b'].forEach(id => document.getElementById(id).style.background = ckDotB);
-  ['tb-dot-a','tb-tbl-dot-a'].forEach(id => document.getElementById(id).style.background = tbDotA);
-  ['tb-dot-b','tb-tbl-dot-b'].forEach(id => document.getElementById(id).style.background = tbDotB);
-}
-
-function calcMatch(matchId) {
-  const s1a = parseInt(document.getElementById(`${matchId}-s1a`).value);
-  const s1b = parseInt(document.getElementById(`${matchId}-s1b`).value);
-  const s2a = parseInt(document.getElementById(`${matchId}-s2a`).value);
-  const s2b = parseInt(document.getElementById(`${matchId}-s2b`).value);
-  const s3a = parseInt(document.getElementById(`${matchId}-s3a`).value);
-  const s3b = parseInt(document.getElementById(`${matchId}-s3b`).value);
-
-  let wA = 0, wB = 0;
-
-  function scoreSet(a, b) {
-    if (!isNaN(a) && !isNaN(b) && (a > 0 || b > 0)) {
-      if (a > b) wA++;
-      else if (b > a) wB++;
-    }
-  }
-  scoreSet(s1a, s1b);
-  scoreSet(s2a, s2b);
-  scoreSet(s3a, s3b);
-
-  // style inputs
-  function styleInputs(sid, a, b) {
-    const ia = document.getElementById(`${matchId}-${sid}a`);
-    const ib = document.getElementById(`${matchId}-${sid}b`);
-    if (!isNaN(a) && !isNaN(b) && (a > 0 || b > 0)) {
-      ia.className = a > b ? 'win-input' : 'lose-input';
-      ib.className = b > a ? 'win-input' : 'lose-input';
-    } else {
-      ia.className = ''; ib.className = '';
-    }
-  }
-  styleInputs('s1', s1a, s1b);
-  styleInputs('s2', s2a, s2b);
-  styleInputs('s3', s3a, s3b);
-
-  // set win counts
-  document.getElementById(`${matchId}-wina`).innerHTML = wA > 0 ? `<span class="set-win">${wA} set</span>` : '–';
-  document.getElementById(`${matchId}-winb`).innerHTML = wB > 0 ? `<span class="set-win">${wB} set</span>` : '–';
-  document.getElementById(`${matchId}-sets-a`).textContent = wA;
-  document.getElementById(`${matchId}-sets-b`).textContent = wB;
-
-  // determine match winner
-  let matchWinner = null, matchLoser = null;
-
-  const isBK = matchId === 'bk1' || matchId === 'bk2';
-  const rowA = document.getElementById(`${matchId}-row-a`);
-  const rowB = document.getElementById(`${matchId}-row-b`);
-  rowA.className = 'team-row';
-  rowB.className = 'team-row';
-
-  if (wA >= 2) { matchWinner = 'a'; matchLoser = 'b'; rowA.className += ' winner-row'; rowB.className += ' loser-row'; }
-  else if (wB >= 2) { matchWinner = 'b'; matchLoser = 'a'; rowB.className += ' winner-row'; rowA.className += ' loser-row'; }
-
-  const disp = document.getElementById(`${matchId}-win-display`);
-  if (matchWinner && isBK) {
-    const {a, b} = BK[matchId];
-    const winIdx  = matchWinner === 'a' ? a : b;
-    const loseIdx = matchLoser  === 'a' ? a : b;
-    winners[matchId] = winIdx;
-    losers[matchId]  = loseIdx;
-    disp.textContent = `✅ ${teamName(winIdx)} thắng`;
-    disp.classList.add('show');
-    updateFinalNames();
-  } else if (matchWinner && (matchId === 'ck' || matchId === 'tb')) {
-    const nameA = document.getElementById(`${matchId}-name-a`).textContent;
-    const nameB = document.getElementById(`${matchId}-name-b`).textContent;
-    const winName = matchWinner === 'a' ? nameA : nameB;
-    disp.textContent = `✅ ${winName} thắng`;
-    disp.classList.add('show');
-    updateFinalResults();
-  } else {
-    disp.classList.remove('show');
-    if (isBK) { winners[matchId] = null; losers[matchId] = null; updateFinalNames(); }
-  }
-
-  updateFinalResults();
-}
-
-function updateFinalResults() {
-  // CK
-  const ckWA = parseInt(document.getElementById('ck-sets-a').textContent) || 0;
-  const ckWB = parseInt(document.getElementById('ck-sets-b').textContent) || 0;
-  const ckNameA = document.getElementById('ck-name-a').textContent;
-  const ckNameB = document.getElementById('ck-name-b').textContent;
-
-  const tbWA = parseInt(document.getElementById('tb-sets-a').textContent) || 0;
-  const tbWB = parseInt(document.getElementById('tb-sets-b').textContent) || 0;
-  const tbNameA = document.getElementById('tb-name-a').textContent;
-  const tbNameB = document.getElementById('tb-name-b').textContent;
-
-  // 1st & 2nd
-  if (ckWA >= 2) {
-    document.getElementById('final-1').textContent = ckNameA;
-    document.getElementById('final-2').textContent = ckNameB;
-  } else if (ckWB >= 2) {
-    document.getElementById('final-1').textContent = ckNameB;
-    document.getElementById('final-2').textContent = ckNameA;
-  } else {
-    document.getElementById('final-1').textContent = 'Chờ kết quả chung kết...';
-    document.getElementById('final-2').textContent = '—';
-  }
-
-  // 3rd & 4th
-  if (tbWA >= 2) {
-    document.getElementById('final-3').textContent = tbNameA;
-    document.getElementById('final-4').textContent = tbNameB;
-  } else if (tbWB >= 2) {
-    document.getElementById('final-3').textContent = tbNameB;
-    document.getElementById('final-4').textContent = tbNameA;
-  } else {
-    document.getElementById('final-3').textContent = 'Chờ kết quả hạng ba...';
-    document.getElementById('final-4').textContent = '—';
-  }
-}
-
-refreshAll();
-</script>
-</body>
-</html>
