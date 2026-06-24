@@ -1,544 +1,244 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Giải Cầu Lông Sân Vườn</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giải Cầu Lông Sân Vườn - Optimize Mobile UX</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; color: #333; padding: 15px; margin: 0; }
+        .container { max-width: 840px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #1e3a8a; margin-bottom: 5px; font-size: 24px; text-transform: uppercase; }
+        h2 { color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; font-size: 18px; margin-top: 25px; }
+        h3 { color: #1e3a8a; font-size: 15px; margin-top: 15px; margin-bottom: 8px; }
+        
+        /* --- BẢNG ĐIỀU KHIỂN BẤM ĐIỂM MOBILE --- */
+        .mobile-score-panel { display: none; background: #1e293b; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: center; color: white; position: sticky; top: 10px; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .match-info-text { font-size: 13px; color: #fca5a5; font-weight: bold; margin-bottom: 8px; }
+        .btn-score-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .display-score-large { font-size: 56px; font-weight: bold; font-family: monospace; color: #fff; margin: 5px 0; line-height: 1; }
+        .score-btn-large { width: 100%; padding: 15px; font-size: 20px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; margin-top: 5px; }
+        .btn-t1 { background-color: #ef4444; }
+        .btn-t1:hover { background-color: #dc2626; }
+        .btn-t2 { background-color: #10b981; }
+        .btn-t2:hover { background-color: #059669; }
+        .undo-btn { background-color: #64748b; color: white; border: none; border-radius: 4px; padding: 5px 10px; font-size: 12px; margin-top: 8px; cursor: pointer; }
 
-:root {
-  --bg:        #f0f4f8;
-  --surface:   #ffffff;
-  --surface2:  #f8fafc;
-  --border:    #e2e8f0;
-  --border2:   #cbd5e1;
-  --text:      #1e293b;
-  --text2:     #475569;
-  --text3:     #94a3b8;
-  --accent:    #0ea5e9;
-  --green:     #16a34a;
-  --red:       #dc2626;
-  --shadow:    0 1px 4px #0001, 0 2px 12px #0ea5e908;
-}
+        .setup-section { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .team-box { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .team-box h3 { margin: 0 0 10px 0; color: #1e40af; font-size: 16px; }
+        .input-group { margin-bottom: 8px; display: flex; align-items: center; }
+        .input-group label { width: 70px; font-weight: bold; font-size: 14px; }
+        .input-group input { flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; }
+        .btn-apply { display: block; width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; margin-top: 10px; }
+        .btn-apply:hover { background: #1d4ed8; }
+        
+        .table-wrapper { overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
+        th, td { border: 1px solid #cbd5e1; padding: 12px 10px; text-align: center; }
+        th { background-color: #1e3a8a; color: white; }
+        tr.active-row { background-color: #fef08a !important; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        .target-score { font-weight: bold; color: #dc2626; background: #fef2f2; border-radius: 4px; padding: 2px 6px; }
+        
+        /* Optimize Input cho Mobile */
+        .score-input { width: 55px; height: 35px; padding: 5px; text-align: center; font-weight: bold; font-size: 15px; border: 1.5px solid #94a3b8; border-radius: 4px; background: #fff; color: #333; }
+        .score-input:focus { border-color: #0ea5e9; background: #f0fdf4; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3); outline: none; }
 
-body {
-  background: var(--bg);
-  font-family: 'Segoe UI', system-ui, Arial, sans-serif;
-  color: var(--text);
-  min-height: 100vh;
-  padding: 24px 12px 60px;
-}
-
-.header { text-align: center; margin-bottom: 24px; }
-.header-badge {
-  display: inline-block;
-  background: var(--accent);
-  color: #fff;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 3px 14px;
-  border-radius: 20px;
-  margin-bottom: 8px;
-}
-.header h1 { font-size: 1.6rem; font-weight: 800; color: var(--text); }
-.header-sub { font-size: 0.75rem; color: var(--text3); margin-top: 4px; }
-
-.section-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text3);
-  text-align: center;
-  margin-bottom: 12px;
-}
-
-/* ── INPUT BOX ── */
-.setup-box {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  max-width: 800px;
-  margin: 0 auto 24px;
-  box-shadow: var(--shadow);
-}
-.team-inputs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-.team-group {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
-  background: var(--surface2);
-}
-.team-group-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--text2);
-}
-.input-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-.input-pair input {
-  width: 100%;
-  border: 1.5px solid var(--border2);
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  outline: none;
-}
-.input-pair input:focus { border-color: var(--accent); }
-
-/* ── TABLE SCHEDULE ── */
-.schedule-box {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  max-width: 950px;
-  margin: 0 auto 24px;
-  box-shadow: var(--shadow);
-  overflow-x: auto;
-}
-.sched-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8rem;
-  min-width: 650px;
-}
-.sched-table th {
-  background: #f1f5f9;
-  color: var(--text2);
-  font-weight: 700;
-  padding: 10px;
-  border: 1px solid var(--border2);
-  text-align: center;
-}
-.sched-table td {
-  padding: 8px 10px;
-  border: 1px solid var(--border);
-  text-align: center;
-}
-.cell-left { text-align: left !important; }
-
-.match-label {
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-}
-.lbl-bk { background: #eff6ff; color: #2563eb; }
-.lbl-tb { background: #f1f5f9; color: #475569; }
-.lbl-ck { background: #fffbeb; color: #b45309; }
-
-.player-display { font-weight: 600; color: var(--text); }
-.score-in {
-  width: 45px;
-  height: 28px;
-  border: 1.5px solid var(--border2);
-  border-radius: 5px;
-  text-align: center;
-  font-size: 0.85rem;
-  font-weight: 700;
-  outline: none;
-}
-.score-in:focus { border-color: var(--accent); }
-.win-input { background: #f0fdf4; border-color: #86efac; color: var(--green); }
-.lose-input { background: #fef2f2; border-color: #fca5a5; color: var(--red); }
-
-/* Conditional Rows */
-.conditional-row { background: #fafafa; display: none; }
-.conditional-row.show { display: table-row; }
-
-/* ── FINAL RESULTS ── */
-.final-box {
-  background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
-  border: 2px solid #fde68a;
-  border-radius: 14px;
-  padding: 18px 20px;
-  max-width: 480px;
-  margin: 20px auto 0;
-  box-shadow: 0 4px 20px #ea580c08;
-}
-.final-title {
-  text-align: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #92400e;
-  margin-bottom: 14px;
-}
-.final-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  margin-bottom: 6px;
-  background: #fff;
-  border: 1px solid #fde68a;
-}
-.final-medal { font-size: 1.2rem; width: 28px; text-align: center; }
-.final-name  { flex: 1; font-size: 0.85rem; font-weight: 700; color: var(--text); }
-.final-label { font-size: 0.6rem; color: var(--text3); font-weight: bold; }
-
-@media (max-width: 600px) {
-  .team-inputs { grid-template-columns: 1fr; }
-}
-</style>
+        .total-row { background-color: #eff6ff !important; font-weight: bold; font-size: 16px; color: #1e3a8a; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; min-width: 95px; }
+        .badge-namnu { background-color: #ec4899; }
+        .badge-nam { background-color: #3b82f6; }
+        
+        @media (max-width: 600px) {
+            .mobile-score-panel { display: block; }
+            .score-input { width: 45px; height: 30px; font-size: 14px; }
+            th, td { padding: 8px 5px; }
+        }
+    </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-badge">🏸 Giải Cầu Lông Sân Vườn</div>
-  <h1>Lịch Thi Đấu Cử Set Xoay Tua</h1>
-  <p class="header-sub">Bán kết chạm 15 điểm đổi sân ở 8 · Chung kết & Hạng 3 chạm 21 điểm đổi sân ở 11</p>
-</div>
+<div class="container">
+    <h1>🏆 GIẢI CẦU LÔNG ĐỒNG ĐỘI</h1>
+    <p style="text-align: center; margin: 0 0 20px 0; color: #64748b; font-size: 14px;">Chạm 210 điểm - Mỗi người đúng 4 trận</p>
 
-<div class="section-title">⬇ Nhập tên thành viên từng cặp (Đội)</div>
-<div class="setup-box">
-  <div class="team-inputs">
-    <div class="team-group">
-      <div class="team-group-title" style="color:#2563eb;">🔵 Cặp đấu số 1 (BK1)</div>
-      <div class="input-pair">
-        <input id="t1_p1" placeholder="Thành viên 1..." value="Team 1A" oninput="updateNames()">
-        <input id="t1_p2" placeholder="Thành viên 2..." value="Team 1B" oninput="updateNames()">
-      </div>
+    <h2>1. NHẬP TÊN THÀNH VIÊN TRÊN SÂN</h2>
+    <div class="setup-section">
+        <div class="team-box">
+            <h3>ĐỘI 1</h3>
+            <div class="input-group"><label>Nữ 1:</label><input type="text" id="d1_n1" value="An"></div>
+            <div class="input-group"><label>Nam 1:</label><input type="text" id="d1_m1" value="Bình"></div>
+            <div class="input-group"><label>Nam 2:</label><input type="text" id="d1_m2" value="Cường"></div>
+            <div class="input-group"><label>Nam 3:</label><input type="text" id="d1_m3" value="Dũng"></div>
+            <div class="input-group"><label>Nam 4:</label><input type="text" id="d1_m4" value="Đông"></div>
+        </div>
+        <div class="team-box">
+            <h3>ĐỘI 2</h3>
+            <div class="input-group"><label>Nữ 2:</label><input type="text" id="d2_n2" value="Vân"></div>
+            <div class="input-group"><label>Nữ 3:</label><input type="text" id="d2_n3" value="Xuân"></div>
+            <div class="input-group"><label>Nam 1:</label><input type="text" id="d2_m1" value="Hải"></div>
+            <div class="input-group"><label>Nam 2:</label><input type="text" id="d2_m2" value="Quân"></div>
+            <div class="input-group"><label>Nam 3:</label><input type="text" id="d2_m3" value="Minh"></div>
+        </div>
     </div>
-    <div class="team-group">
-      <div class="team-group-title" style="color:#d97706;">🟡 Cặp đấu số 2 (BK1)</div>
-      <div class="input-pair">
-        <input id="t2_p1" placeholder="Thành viên 1..." value="Team 2A" oninput="updateNames()">
-        <input id="t2_p2" placeholder="Thành viên 2..." value="Team 2B" oninput="updateNames()">
-      </div>
+    <button class="btn-apply" onclick="updateNames()">Cập Nhật Tên Vào Lịch Đấu</button>
+
+    <h2>2. BẢNG BẤM ĐIỂM NHANH (MOBILE SCOREBOARD)</h2>
+    <div class="mobile-score-panel">
+        <div class="match-info-text" id="live_match_status">Tap vào ô điểm của trận đấu để bắt đầu bấm</div>
+        <div class="btn-score-group">
+            <div>
+                <div class="display-total" id="live_total_1">0</div>
+                <button class="score-btn-large btn-t1" onclick="mobilePressScore(1)">+1 ĐỘI 1</button>
+            </div>
+            <div>
+                <div class="display-total" id="live_total_2">0</div>
+                <button class="score-btn-large btn-t2" onclick="mobilePressScore(2)">+1 ĐỘI 2</button>
+            </div>
+        </div>
+        <button class="undo-btn" onclick="undoLastScore()">↩ Hoàn tác (-1 điểm nhầm)</button>
     </div>
-    <div class="team-group">
-      <div class="team-group-title" style="color:#059669;">🟢 Cặp đấu số 3 (BK2)</div>
-      <div class="input-pair">
-        <input id="t3_p1" placeholder="Thành viên 1..." value="Team 3A" oninput="updateNames()">
-        <input id="t3_p2" placeholder="Thành viên 2..." value="Team 3B" oninput="updateNames()">
-      </div>
+
+    <h2>3. LỊCH THI ĐẤU XEN Kẽ & CHI TIẾT ĐIỂM</h2>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Trận</th>
+                    <th>Thể thức</th>
+                    <th>Đội 1 vào sân</th>
+                    <th>Đội 2 vào sân</th>
+                    <th>Mốc Đích</th>
+                    <th>Điểm Đ1</th>
+                    <th>Điểm Đ2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <script>
+                    const badges = [
+                        'badge-namnu">Đôi Nam Nữ', 'badge-nam">Đôi Nam Thuần',
+                        'badge-namnu">Đôi Nam Nữ', 'badge-nam">Đôi Nam Thuần',
+                        'badge-namnu">Đôi Nam Nữ', 'badge-nam">Đôi Nam Thuần',
+                        'badge-namnu">Đôi Nam Nữ', 'badge-nam">Đôi Nam Thuần',
+                        'badge-namnu">Đôi Nam Nữ', 'badge-nam">CHUNG KẾT NAM'
+                    ];
+                    for(let i=1; i<=10; i++) {
+                        document.write(`
+                            <tr id="row_${i}">
+                                <td><b>${i}</b></td>
+                                <td><span class="badge ${badges[i-1]}</span></td>
+                                <td id="t${i}_d1"></td>
+                                <td id="t${i}_d2"></td>
+                                <td><span class="target-score">${i*21}</span></td>
+                                <td><input type="number" inputmode="numeric" class="score-input" id="s${i}_1" value="0" oninput="calculateTotal()" onclick="setCurrentMatchForMobile(${i})"></td>
+                                <td><input type="number" inputmode="numeric" class="score-input" id="s${i}_2" value="0" oninput="calculateTotal()" onclick="setCurrentMatchForMobile(${i})"></td>
+                            </tr>
+                        `);
+                    }
+                </script>
+                <tr class="total-row">
+                    <td colspan="5">TỔNG ĐIỂM HIỆN TẠI (Mục tiêu 210)</td>
+                    <td id="total_1">0</td>
+                    <td id="total_2">0</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <div class="team-group">
-      <div class="team-group-title" style="color:#e11d48;">🔴 Cặp đấu số 4 (BK2)</div>
-      <div class="input-pair">
-        <input id="t4_p1" placeholder="Thành viên 1..." value="Team 4A" oninput="updateNames()">
-        <input id="t4_p2" placeholder="Thành viên 2..." value="Team 4B" oninput="updateNames()">
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="section-title">📅 Lịch thi đấu và nhập điểm tự động</div>
-<div class="schedule-box">
-  <table class="sched-table">
-    <thead>
-      <tr>
-        <th style="width: 6%">Lượt</th>
-        <th style="width: 15%">Trận đấu</th>
-        <th style="width: 10%">Nội dung</th>
-        <th style="width: 27%">Đội số 1 (Cặp)</th>
-        <th style="width: 12%">Tỷ số</th>
-        <th style="width: 27%">Đội số 2 (Cặp)</th>
-      </tr>
-    </thead>
-    <tbody id="schedule-body">
-      <tr>
-        <td>1</td>
-        <td><span class="match-label lbl-bk">Bán Kết 1</span></td>
-        <td>Set 1</td>
-        <td class="cell-left"><span id="lbl_l1_t1" class="player-display"></span></td>
-        <td>
-          <input type="number" id="s_l1_1" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l1_2" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l1_t2" class="player-display"></span></td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td><span class="match-label lbl-bk">Bán Kết 2</span></td>
-        <td>Set 1</td>
-        <td class="cell-left"><span id="lbl_l2_t3" class="player-display"></span></td>
-        <td>
-          <input type="number" id="s_l2_3" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l2_4" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l2_t4" class="player-display"></span></td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td><span class="match-label lbl-bk">Bán Kết 1</span></td>
-        <td>Set 2</td>
-        <td class="cell-left"><span id="lbl_l3_t1" class="player-display"></span></td>
-        <td>
-          <input type="number" id="s_l3_1" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l3_2" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l3_t2" class="player-display"></span></td>
-      </tr>
-      <tr>
-        <td>4</td>
-        <td><span class="match-label lbl-bk">Bán Kết 2</span></td>
-        <td>Set 2</td>
-        <td class="cell-left"><span id="lbl_l4_t3" class="player-display"></span></td>
-        <td>
-          <input type="number" id="s_l4_3" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l4_4" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l4_t4" class="player-display"></span></td>
-      </tr>
-
-      <tr id="row_l5" class="conditional-row">
-        <td>5</td>
-        <td><span class="match-label lbl-bk">Bán Kết 1 (Nếu có)</span></td>
-        <td>Set 3 (Quyết định)</td>
-        <td class="cell-left"><span id="lbl_l5_t1" class="player-display"></span></td>
-        <td>
-          <input type="number" id="s_l5_1" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l5_2" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l5_t2" class="player-display"></span></td>
-      </tr>
-      <tr id="row_l6" class="conditional-row">
-        <td>6</td>
-        <td><span class="match-label lbl-bk">Bán Kết 2 (Nếu có)</span></td>
-        <td>Set 3 (Quyết định)</td>
-        <td class="cell-left"><span id="lbl_l6_t3" class="player-display"></span></td>
-        <td>
-          <input type="number" id="s_l6_3" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l6_4" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l6_t4" class="player-display"></span></td>
-      </tr>
-
-      <tr>
-        <td>7</td>
-        <td><span class="match-label lbl-tb">Tranh Hạng Ba</span></td>
-        <td>Set 1</td>
-        <td class="cell-left"><span id="lbl_l7_lost1" class="player-display">Chờ Thua BK1</span></td>
-        <td>
-          <input type="number" id="s_l7_lost1" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l7_lost2" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l7_lost2" class="player-display">Chờ Thua BK2</span></td>
-      </tr>
-      <tr>
-        <td>8</td>
-        <td><span class="match-label lbl-ck">Chung Kết</span></td>
-        <td>Set 1</td>
-        <td class="cell-left"><span id="lbl_l8_win1" class="player-display">Chờ Thắng BK1</span></td>
-        <td>
-          <input type="number" id="s_l8_win1" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l8_win2" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l8_win2" class="player-display">Chờ Thắng BK2</span></td>
-      </tr>
-      <tr>
-        <td>9</td>
-        <td><span class="match-label lbl-tb">Tranh Hạng Ba</span></td>
-        <td>Set 2</td>
-        <td class="cell-left"><span id="lbl_l9_lost1" class="player-display">Chờ Thua BK1</span></td>
-        <td>
-          <input type="number" id="s_l9_lost1" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l9_lost2" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l9_lost2" class="player-display">Chờ Thua BK2</span></td>
-      </tr>
-      <tr>
-        <td>10</td>
-        <td><span class="match-label lbl-ck">Chung Kết</span></td>
-        <td>Set 2</td>
-        <td class="cell-left"><span id="lbl_l10_win1" class="player-display">Chờ Thắng BK1</span></td>
-        <td>
-          <input type="number" id="s_l10_win1" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l10_win2" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l10_win2" class="player-display">Chờ Thắng BK2</span></td>
-      </tr>
-
-      <tr id="row_l11" class="conditional-row">
-        <td>11</td>
-        <td><span class="match-label lbl-tb">Tranh Hạng Ba (Nếu có)</span></td>
-        <td>Set 3 (Quyết định)</td>
-        <td class="cell-left"><span id="lbl_l11_lost1" class="player-display">Chờ Thua BK1</span></td>
-        <td>
-          <input type="number" id="s_l11_lost1" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l11_lost2" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l11_lost2" class="player-display">Chờ Thua BK2</span></td>
-      </tr>
-      <tr id="row_l12" class="conditional-row">
-        <td>12</td>
-        <td><span class="match-label lbl-ck">Chung Kết (Nếu có)</span></td>
-        <td>Set 3 (Quyết định)</td>
-        <td class="cell-left"><span id="lbl_l12_win1" class="player-display">Chờ Thắng BK1</span></td>
-        <td>
-          <input type="number" id="s_l12_win1" class="score-in" oninput="calcAll()"> : 
-          <input type="number" id="s_l12_win2" class="score-in" oninput="calcAll()">
-        </td>
-        <td class="cell-left"><span id="lbl_l12_win2" class="player-display">Chờ Thắng BK2</span></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="final-box">
-  <div class="final-title">🏆 Kết Quả Chung Cuộc</div>
-  <div class="final-row">
-    <div class="final-medal">🥇</div>
-    <div class="final-name" id="f_1st">Chờ chung kết...</div>
-    <div class="final-label">VÔ ĐỊCH</div>
-  </div>
-  <div class="final-row">
-    <div class="final-medal">🥈</div>
-    <div class="final-name" id="f_2nd">—</div>
-    <div class="final-label">Á QUÂN</div>
-  </div>
-  <div class="final-row">
-    <div class="final-medal">🥉</div>
-    <div class="final-name" id="f_3rd">Chờ tranh hạng ba...</div>
-    <div class="final-label">HẠNG BA</div>
-  </div>
-  <div class="final-row" style="border-color:#e2e8f0;">
-    <div class="final-medal" style="font-size:0.9rem">4️⃣</div>
-    <div class="final-name" id="f_4th" style="color:#94a3b8">—</div>
-    <div class="final-label">HẠNG TƯ</div>
-  </div>
 </div>
 
 <script>
-function getTeamName(num) {
-  const p1 = document.getElementById(`t${num}_p1`).value.trim();
-  const p2 = document.getElementById(`t${num}_p2`).value.trim();
-  if(!p1 && !p2) return `Cặp ${num}`;
-  return `${p1} + ${p2}`;
-}
+    let currentMatchForMobile = null; // Trận đang được trọng tài chọn để bấm điểm
+    let undoStack = []; // Lưu lịch sử để Hoàn tác
 
-function updateNames() {
-  const n1 = getTeamName(1), n2 = getTeamName(2);
-  const n3 = getTeamName(3), n4 = getTeamName(4);
+    function setCurrentMatchForMobile(matchId) {
+        currentMatchForMobile = matchId;
+        updateRowHighlight();
+    }
 
-  document.getElementById('lbl_l1_t1').textContent = n1; document.getElementById('lbl_l1_t2').textContent = n2;
-  document.getElementById('lbl_l2_t3').textContent = n3; document.getElementById('lbl_l2_t4').textContent = n4;
-  document.getElementById('lbl_l3_t1').textContent = n1; document.getElementById('lbl_l3_t2').textContent = n2;
-  document.getElementById('lbl_l4_t3').textContent = n3; document.getElementById('lbl_l4_t4').textContent = n4;
-  document.getElementById('lbl_l5_t1').textContent = n1; document.getElementById('lbl_l5_t2').textContent = n2;
-  document.getElementById('lbl_l6_t3').textContent = n3; document.getElementById('lbl_l6_t4').textContent = n4;
-  
-  calcAll();
-}
+    function updateNames() {
+        const d1 = { n1: document.getElementById('d1_n1').value, m1: document.getElementById('d1_m1').value, m2: document.getElementById('d1_m2').value, m3: document.getElementById('d1_m3').value, m4: document.getElementById('d1_m4').value };
+        const d2 = { n2: document.getElementById('d2_n2').value, n3: document.getElementById('d2_n3').value, m1: document.getElementById('d2_m1').value, m2: document.getElementById('d2_m2').value, m3: document.getElementById('d2_m3').value };
 
-function parseScore(id) {
-  const val = parseInt(document.getElementById(id).value);
-  return isNaN(val) ? null : val;
-}
+        document.getElementById('t1_d1').innerHTML = d1.n1 + " + " + d1.m1; document.getElementById('t1_d2').innerHTML = d2.n2 + " + " + d2.m1;
+        document.getElementById('t2_d1').innerHTML = d1.m2 + " + " + d1.m3; document.getElementById('t2_d2').innerHTML = d2.m2 + " + " + d2.m3;
+        document.getElementById('t3_d1').innerHTML = d1.n1 + " + " + d1.m4; document.getElementById('t3_d2').innerHTML = d2.n3 + " + " + d2.m1;
+        document.getElementById('t4_d1').innerHTML = d1.m1 + " + " + d1.m2; document.getElementById('t4_d2').innerHTML = d2.m2 + " + " + d2.m3;
+        document.getElementById('t5_d1').innerHTML = d1.n1 + " + " + d1.m3; document.getElementById('t5_d2').innerHTML = d2.n2 + " + " + d2.m2;
+        document.getElementById('t6_d1').innerHTML = d1.m1 + " + " + d1.m4; document.getElementById('t6_d2').innerHTML = d2.m1 + " + " + d2.m3;
+        document.getElementById('t7_d1').innerHTML = d1.n1 + " + " + d1.m2; document.getElementById('t7_d2').innerHTML = d2.n3 + " + " + d2.m2;
+        document.getElementById('t8_d1').innerHTML = d1.m1 + " + " + d1.m3; document.getElementById('t8_d2').innerHTML = d2.m1 + " + " + d2.m2;
+        document.getElementById('t9_d1').innerHTML = d1.m4 + " + " + d1.m2; document.getElementById('t9_d2').innerHTML = d2.n2 + " + " + d2.m3;
+        document.getElementById('t10_d1').innerHTML = d1.m3 + " + " + d1.m4; document.getElementById('t10_d2').innerHTML = d2.n3 + " + " + d2.m1;
+        
+        updateRowHighlight();
+    }
 
-function styleInputPair(id1, id2) {
-  const v1 = parseScore(id1), v2 = parseScore(id2);
-  const el1 = document.getElementById(id1), el2 = document.getElementById(id2);
-  if(v1 === null || v2 === null) { el1.className = 'score-in'; el2.className = 'score-in'; return; }
-  el1.className = v1 > v2 ? 'score-in win-input' : 'score-in lose-input';
-  el2.className = v2 > v1 ? 'score-in win-input' : 'score-in lose-input';
-}
+    function updateRowHighlight() {
+        for (let i = 1; i <= 10; i++) {
+            document.getElementById(`row_${i}`).classList.remove('active-row');
+        }
+        if (currentMatchForMobile) {
+            const activeRow = document.getElementById(`row_${currentMatchForMobile}`);
+            activeRow.classList.add('active-row');
+            
+            // Cập nhật thông tin text hiển thị trên bảng điều khiển scoreboard mobile
+            const typeText = activeRow.cells[1].innerText;
+            const team1Players = activeRow.cells[2].innerText;
+            const team2Players = activeRow.cells[3].innerText;
+            document.getElementById('live_match_status').innerText = `BẤM ĐIỂM TRẬN ${currentMatchForMobile}: ${typeText}\n${team1Players} vs ${team2Players}`;
+        }
+    }
 
-function calcAll() {
-  // Style toàn bộ input pair
-  const pairs = [
-    ['s_l1_1','s_l1_2'], ['s_l2_3','s_l2_4'], ['s_l3_1','s_l3_2'], ['s_l4_3','s_l4_4'],
-    ['s_l5_1','s_l5_2'], ['s_l6_3','s_l6_4'], ['s_l7_lost1','s_l7_lost2'], ['s_l8_win1','s_l8_win2'],
-    ['s_l9_lost1','s_l9_lost2'], ['s_l10_win1','s_l10_win2'], ['s_l11_lost1','s_l11_lost2'], ['s_l12_win1','s_l12_win2']
-  ];
-  pairs.forEach(p => styleInputPair(p[0], p[1]));
+    // Hàm bấm nút cho Mobile
+    function mobilePressScore(team) {
+        if (!currentMatchForMobile || currentMatchForMobile > 10) {
+            alert("Hãy tap vào ô điểm của trận đấu đang đánh để bắt đầu cộng điểm.");
+            return;
+        }
 
-  // TÍNH BÁN KẾT 1
-  let bk1_1 = 0, bk1_2 = 0;
-  if(parseScore('s_l1_1') > parseScore('s_l1_2')) bk1_1++; else if(parseScore('s_l1_1') < parseScore('s_l1_2')) bk1_2++;
-  if(parseScore('s_l3_1') > parseScore('s_l3_2')) bk1_1++; else if(parseScore('s_l3_1') < parseScore('s_l3_2')) bk1_2++;
-  
-  let showBK1_S3 = (bk1_1 === 1 && bk1_2 === 1);
-  document.getElementById('row_l5').classList.toggle('show', showBK1_S3);
-  if(showBK1_S3) {
-    if(parseScore('s_l5_1') > parseScore('s_l5_2')) bk1_1++; else if(parseScore('s_l5_1') < parseScore('s_l5_2')) bk1_2++;
-  }
-  
-  let winBK1 = null, lostBK1 = null;
-  if(bk1_1 >= 2) { winBK1 = getTeamName(1); lostBK1 = getTeamName(2); }
-  else if(bk1_2 >= 2) { winBK1 = getTeamName(2); lostBK1 = getTeamName(1); }
+        const inputId = `s${currentMatchForMobile}_${team}`;
+        const inputEl = document.getElementById(inputId);
+        const currentInputValue = parseInt(inputEl.value) || 0;
+        inputEl.value = currentInputValue + 1;
 
-  // TÍNH BÁN KẾT 2
-  let bk2_3 = 0, bk2_4 = 0;
-  if(parseScore('s_l2_3') > parseScore('s_l2_4')) bk2_3++; else if(parseScore('s_l2_3') < parseScore('s_l2_4')) bk2_4++;
-  if(parseScore('s_l4_3') > parseScore('s_l4_4')) bk2_3++; else if(parseScore('s_l4_3') < parseScore('s_l4_4')) bk2_4++;
+        // Lưu lịch sử để Hoàn tác
+        undoStack.push({ matchId: currentMatchForMobile, team: team });
 
-  let showBK2_S3 = (bk2_3 === 1 && bk2_4 === 1);
-  document.getElementById('row_l6').classList.toggle('show', showBK2_S3);
-  if(showBK2_S3) {
-    if(parseScore('s_l6_3') > parseScore('s_l6_4')) bk2_3++; else if(parseScore('s_l6_3') < parseScore('s_l6_4')) bk2_4++;
-  }
+        calculateTotal();
+    }
 
-  let winBK2 = null, lostBK2 = null;
-  if(bk2_3 >= 2) { winBK2 = getTeamName(3); lostBK2 = getTeamName(4); }
-  else if(bk2_4 >= 2) { winBK2 = getTeamName(4); lostBK2 = getTeamName(3); }
+    // Hàm Hoàn tác (Undo)
+    function undoLastScore() {
+        if (undoStack.length === 0) return;
+        const lastAction = undoStack.pop();
+        const inputId = `s${lastAction.matchId}_${lastAction.team}`;
+        const inputEl = document.getElementById(inputId);
+        const currentInputValue = parseInt(inputEl.value) || 0;
+        if(currentInputValue > 0) {
+            inputEl.value = currentInputValue - 1;
+            calculateTotal();
+        }
+    }
 
-  // Gán nhãn cho Hạng Ba và Chung Kết
-  const lb_w1 = winBK1 || "Thắng BK1", lb_w2 = winBK2 || "Thắng BK2";
-  const lb_l1 = lostBK1 || "Thua BK1", lb_l2 = lostBK2 || "Thua BK2";
+    function calculateTotal() {
+        let total1 = 0; let total2 = 0;
+        for (let i = 1; i <= 10; i++) {
+            let s1 = parseInt(document.getElementById(`s${i}_1`).value) || 0;
+            let s2 = parseInt(document.getElementById(`s${i}_2`).value) || 0;
+            total1 += s1; total2 += s2;
+        }
+        
+        // Cập nhật điểm hiển thị lớn trên Scoreboard và dòng tổng số bên dưới bảng
+        document.getElementById('total_1').innerText = total1;
+        document.getElementById('total_2').innerText = total2;
+        document.getElementById('live_total_1').innerText = total1;
+        document.getElementById('live_total_2').innerText = total2;
 
-  ['l7_lost1','l9_lost1','l11_lost1'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_l1);
-  ['l7_lost2','l9_lost2','l11_lost2'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_l2);
-  ['l8_win1','l10_win1','l12_win1'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_w1);
-  ['l8_win2','l10_win2','l12_win2'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_w2);
-
-  // TÍNH TRANH HẠNG BA
-  let tb_1 = 0, tb_2 = 0;
-  if(lostBK1 && lostBK2) {
-    if(parseScore('s_l7_lost1') > parseScore('s_l7_lost2')) tb_1++; else if(parseScore('s_l7_lost1') < parseScore('s_l7_lost2')) tb_2++;
-    if(parseScore('s_l9_lost1') > parseScore('s_l9_lost2')) tb_1++; else if(parseScore('s_l9_lost1') < parseScore('s_l9_lost2')) tb_2++;
+        if(total1 >= 210) { alert("🏆 Chúc mừng ĐỘI 1 đã chạm mốc 210 và giành CHIẾN THẮNG CHUNG CUỘC! 🎉"); }
+        else if(total2 >= 210) { alert("🏆 Chúc mừng ĐỘI 2 đã chạm mốc 210 và giành CHIẾN THẮNG CHUNG CUỘC! 🎉"); }
+    }
     
-    let showTB_S3 = (tb_1 === 1 && tb_2 === 1);
-    document.getElementById('row_l11').classList.toggle('show', showTB_S3);
-    if(showTB_S3) {
-      if(parseScore('s_l11_lost1') > parseScore('s_l11_lost2')) tb_1++; else if(parseScore('s_l11_lost1') < parseScore('s_l11_lost2')) tb_2++;
-    }
-  }
-
-  // TÍNH CHUNG KẾT
-  let ck_1 = 0, ck_2 = 0;
-  if(winBK1 && winBK2) {
-    if(parseScore('s_l8_win1') > parseScore('s_l8_win2')) ck_1++; else if(parseScore('s_l8_win1') < parseScore('s_l8_win2')) ck_2++;
-    if(parseScore('s_l10_win1') > parseScore('s_l10_win2')) ck_1++; else if(parseScore('s_l10_win1') < parseScore('s_l10_win2')) ck_2++;
-
-    let showCK_S3 = (ck_1 === 1 && ck_2 === 1);
-    document.getElementById('row_l12').classList.toggle('show', showCK_S3);
-    if(showCK_S3) {
-      if(parseScore('s_l12_win1') > parseScore('s_l12_win2')) ck_1++; else if(parseScore('s_l12_win1') < parseScore('s_l12_win2')) ck_2++;
-    }
-  }
-
-  // CẬP NHẬT ĐIỂM CHUNG CUỘC
-  if(ck_1 >= 2) { document.getElementById('f_1st').textContent = lb_w1; document.getElementById('f_2nd').textContent = lb_w2; }
-  else if(ck_2 >= 2) { document.getElementById('f_1st').textContent = lb_w2; document.getElementById('f_2nd').textContent = lb_w1; }
-  else { document.getElementById('f_1st').textContent = "Chờ chung kết..."; document.getElementById('f_2nd').textContent = "—"; }
-
-  if(tb_1 >= 2) { document.getElementById('f_3rd').textContent = lb_l1; document.getElementById('f_4th').textContent = lb_l2; }
-  else if(tb_2 >= 2) { document.getElementById('f_3rd').textContent = lb_l2; document.getElementById('f_4th').textContent = lb_l1; }
-  else { document.getElementById('f_3rd').textContent = "Chờ tranh hạng ba..."; document.getElementById('f_4th').textContent = "—"; }
-}
-
-// Khởi chạy tên mặc định
-updateNames();
+    window.onload = updateNames;
 </script>
 </body>
 </html>
