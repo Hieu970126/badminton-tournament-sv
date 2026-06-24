@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Giải Cầu Lông Sân Vườn - Có Bốc Thăm Chia Bảng</title>
+<title>Quản Lý Nhiều Giải Cầu Lông Sân Vườn</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -49,6 +49,27 @@ body {
 .header h1 { font-size: 1.4rem; font-weight: 800; color: var(--text); }
 .header-sub { font-size: 0.75rem; color: var(--text3); margin-top: 4px; line-height: 1.3; }
 
+/* ── KHU VỰC CHỌN GIẢI ĐẤU (MỚI) ── */
+.tournament-selector-box {
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 12px;
+  max-width: 800px;
+  margin: 0 auto 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+.selector-group { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px; }
+.selector-group select { flex: 1; padding: 8px; border-radius: 6px; border: 1.5px solid var(--border2); font-weight: 600; outline: none; }
+.create-group { display: flex; gap: 6px; }
+.create-group input { padding: 8px; border-radius: 6px; border: 1.5px solid var(--border2); outline: none; font-size: 0.85rem; }
+.btn-create { background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+
 .section-title {
   font-size: 0.75rem;
   font-weight: 700;
@@ -63,7 +84,7 @@ body {
   gap: 6px;
 }
 
-/* ── KHU VỰC BỐC THĂM MỚI ── */
+/* ── KHU VỰC BỐC THĂM ── */
 .draw-box {
   background: #fff;
   border: 2px dashed #0ea5e9;
@@ -73,162 +94,43 @@ body {
   margin: 0 auto 16px;
   box-shadow: var(--shadow);
 }
-.draw-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.draw-list-group {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  padding: 10px;
-  border-radius: 8px;
-}
-.draw-list-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--text2);
-}
-.draw-list-group input {
-  width: 100%;
-  border: 1px solid var(--border2);
-  border-radius: 6px;
-  padding: 6px;
-  font-size: 0.8rem;
-  margin-bottom: 6px;
-  outline: none;
-}
-.draw-actions {
-  grid-column: span 2;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-top: 6px;
-}
-.btn-draw-captain {
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  color: #16a34a;
-  padding: 10px 4px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  text-align: center;
-}
-.btn-draw-captain:disabled {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-  color: #94a3b8;
-  cursor: not-allowed;
-}
-.draw-results-preview {
-  grid-column: span 2;
-  background: #fafafa;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px;
-  margin-top: 4px;
-}
-.preview-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  padding: 4px 0;
-  border-bottom: 1px dashed var(--border);
-}
+.draw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.draw-list-group { background: var(--surface2); border: 1px solid var(--border); padding: 10px; border-radius: 8px; }
+.draw-list-title { font-size: 0.75rem; font-weight: 700; margin-bottom: 8px; color: var(--text2); }
+.draw-list-group input { width: 100%; border: 1px solid var(--border2); border-radius: 6px; padding: 6px; font-size: 0.8rem; margin-bottom: 6px; outline: none; }
+.draw-actions { grid-column: span 2; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 6px; }
+.btn-draw-captain { background: #f0fdf4; border: 1px solid #86efac; color: #16a34a; padding: 10px 4px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-align: center; }
+.btn-draw-captain:disabled { background: #f1f5f9; border-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+.draw-results-preview { grid-column: span 2; background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-top: 4px; }
+.preview-row { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 4px 0; border-bottom: 1px dashed var(--border); }
 .preview-row:last-child { border: none; }
 
 /* ── INPUT BOX CÁC ĐỘI ── */
-.setup-box {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
-  max-width: 800px;
-  margin: 0 auto 16px;
-  box-shadow: var(--shadow);
-}
-.team-inputs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-.team-group {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px;
-  background: var(--surface2);
-}
-.team-group-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  margin-bottom: 6px;
-  color: var(--text2);
-}
-.input-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-.input-pair input {
-  width: 100%;
-  border: 1.5px solid var(--border2);
-  border-radius: 6px;
-  padding: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  outline: none;
-}
+.setup-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; max-width: 800px; margin: 0 auto 16px; box-shadow: var(--shadow); }
+.team-inputs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.team-group { border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: var(--surface2); }
+.team-group-title { font-size: 0.75rem; font-weight: 700; margin-bottom: 6px; color: var(--text2); }
+.input-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.input-pair input { width: 100%; border: 1.5px solid var(--border2); border-radius: 6px; padding: 8px; font-size: 0.8rem; font-weight: 600; outline: none; }
 .input-pair input:focus { border-color: var(--accent); }
 
 /* ── TABLE SCHEDULE ── */
-.schedule-box {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
-  max-width: 950px;
-  margin: 0 auto 16px;
-  box-shadow: var(--shadow);
-}
-.sched-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-.sched-table th {
-  background: #f1f5f9;
-  color: var(--text2);
-  font-weight: 700;
-  padding: 10px 6px;
-  border: 1px solid var(--border2);
-  text-align: center;
-}
+.schedule-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; max-width: 950px; margin: 0 auto 16px; box-shadow: var(--shadow); }
+.sched-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.sched-table th { background: #f1f5f9; color: var(--text2); font-weight: 700; padding: 10px 6px; border: 1px solid var(--border2); text-align: center; }
 .sched-table td { padding: 10px 6px; border: 1px solid var(--border); text-align: center; }
 .cell-left { text-align: left !important; }
 
-.match-label {
-  font-weight: 700;
-  padding: 3px 6px;
-  border-radius: 4px;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  display: inline-block;
-}
+.match-label { font-weight: 700; padding: 3px 6px; border-radius: 4px; font-size: 0.65rem; text-transform: uppercase; display: inline-block; }
 .lbl-bk { background: #eff6ff; color: #2563eb; }
 .lbl-tb { background: #f1f5f9; color: #475569; }
 .lbl-ck { background: #fffbeb; color: #b45309; }
-
 .player-display { font-weight: 600; color: var(--text); display: block; word-break: break-word; }
 
 /* ── SCORE STEPPER ── */
 .score-stepper-container { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .score-stepper { display: inline-flex; align-items: center; border: 1.5px solid var(--border2); border-radius: 8px; overflow: hidden; background: #fff; }
-.btn-step { width: 32px; height: 34px; border: none; background: #f8fafc; font-size: 1.1rem; font-weight: bold; color: var(--text2); cursor: pointer; user-select: none; -webkit-user-select: none; }
-.btn-step:active { background: #e2e8f0; }
-
+.btn-step { width: 32px; height: 34px; border: none; background: #f8fafc; font-size: 1.1rem; font-weight: bold; color: var(--text2); cursor: pointer; user-select: none; }
 .score-in { width: 38px; height: 34px; border: none; border-left: 1px solid var(--border2); border-right: 1px solid var(--border2); text-align: center; font-size: 0.95rem; font-weight: 700; outline: none; }
 .score-in::-webkit-outer-spin-button, .score-in::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
@@ -236,21 +138,12 @@ body {
 .score-stepper.win-style .score-in { background: #f0fdf4; color: var(--green); }
 .score-stepper.lose-style { border-color: #fca5a5; background: #fef2f2; }
 .score-stepper.lose-style .score-in { background: #fef2f2; color: var(--red); }
-
 .score-colon { font-weight: bold; color: var(--text3); font-size: 1.1rem; }
 .conditional-row { display: none; background: #fafafa; }
 .conditional-row.show { display: table-row; }
 
 /* ── FINAL RESULTS ── */
-.final-box {
-  background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
-  border: 2px solid #fde68a;
-  border-radius: 14px;
-  padding: 16px;
-  max-width: 480px;
-  margin: 16px auto 0;
-  box-shadow: 0 4px 20px #ea580c08;
-}
+.final-box { background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%); border: 2px solid #fde68a; border-radius: 14px; padding: 16px; max-width: 480px; margin: 16px auto 0; box-shadow: 0 4px 20px #ea580c08; }
 .final-title { text-align: center; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #92400e; margin-bottom: 12px; }
 .final-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; background: #fff; border: 1px solid #fde68a; }
 .final-medal { font-size: 1.2rem; width: 28px; text-align: center; }
@@ -261,8 +154,8 @@ body {
 .btn-reset { background: #ef4444; color: white; border: none; padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 8px; cursor: pointer; }
 .btn-secondary { background: #64748b; color: white; border: none; padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 8px; cursor: pointer; }
 
-/* ── RESPONSIVE ── */
 @media (max-width: 768px) {
+  .tournament-selector-box { flex-direction: column; align-items: stretch; }
   .draw-grid { grid-template-columns: 1fr; }
   .draw-actions { grid-column: span 1; grid-template-columns: repeat(2, 1fr); }
   .draw-results-preview { grid-column: span 1; }
@@ -285,9 +178,23 @@ body {
 <body>
 
 <div class="header">
-  <div class="header-badge">🏸 Giải Cầu Lông Sân Vườn</div>
+  <div class="header-badge">🏸 Hệ Thống Đa Giải Đấu</div>
   <h1>Hệ Thống Bốc Thăm & Nhập Điểm</h1>
-  <p class="header-sub">Nhập Đội trưởng & Thành viên để quay số ghép cặp ngẫu nhiên vào các nhánh đấu tự động</p>
+  <p class="header-sub">Chọn giải đấu hoặc tạo giải đấu mới để quản lý độc lập</p>
+</div>
+
+<!-- 🌐 KHU VỰC CHỌN GIẢI ĐẤU (MỚI THÊM) -->
+<div class="tournament-selector-box">
+  <div class="selector-group">
+    <label for="tournament_select" style="font-weight: bold; font-size: 0.9rem;">🏆 Giải đang chọn:</label>
+    <select id="tournament_select" onchange="switchTournament(this.value)">
+      <!-- Sẽ được render tự động từ Firebase -->
+    </select>
+  </div>
+  <div class="create-group">
+    <input type="text" id="new_tournament_name" placeholder="Tên giải đấu mới...">
+    <button class="btn-create" onclick="createNewTournament()">➕ Tạo Giải</button>
+  </div>
 </div>
 
 <div class="section-title">🎲 Bước 1: Bốc thăm ghép đội và Chia bảng</div>
@@ -363,6 +270,7 @@ body {
     <label for="admin_pass" style="font-weight: bold; margin-right: 10px;">🔑 Mật khẩu trọng tài:</label>
     <input type="password" id="admin_pass" placeholder="Nhập mật khẩu..." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
 </div>
+
 <div class="section-title">📅 Bước 2: Theo dõi lịch thi đấu & Nhập điểm nhanh</div>
 <div class="schedule-box">
   <table class="sched-table">
@@ -377,272 +285,150 @@ body {
       </tr>
     </thead>
     <tbody id="schedule-body">
+      <!-- Toàn bộ 12 hàng TR giữ nguyên như code cũ của bạn -->
       <tr>
-        <td>1</td>
-        <td><span class="match-label lbl-bk">Bán Kết 1</span></td>
-        <td>Set 1</td>
+        <td>1</td><td><span class="match-label lbl-bk">Bán Kết 1</span></td><td>Set 1</td>
         <td class="cell-left"><span id="lbl_l1_t1" class="player-display"></span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l1_1">
-              <button class="btn-step" onclick="step('s_l1_1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l1_1" class="score-in" min="0" oninput="handleInputManual('s_l1_1')">
-              <button class="btn-step" onclick="step('s_l1_1', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l1_1"><button class="btn-step" onclick="step('s_l1_1', -1)">-</button><input type="number" inputmode="numeric" id="s_l1_1" class="score-in" min="0" oninput="handleInputManual('s_l1_1')"><button class="btn-step" onclick="step('s_l1_1', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l1_2">
-              <button class="btn-step" onclick="step('s_l1_2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l1_2" class="score-in" min="0" oninput="handleInputManual('s_l1_2')">
-              <button class="btn-step" onclick="step('s_l1_2', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l1_2"><button class="btn-step" onclick="step('s_l1_2', -1)">-</button><input type="number" inputmode="numeric" id="s_l1_2" class="score-in" min="0" oninput="handleInputManual('s_l1_2')"><button class="btn-step" onclick="step('s_l1_2', 1)">+</button></div>
           </div>
         </td>
         <td class="cell-left"><span id="lbl_l1_t2" class="player-display"></span></td>
       </tr>
       <tr>
-        <td>2</td>
-        <td><span class="match-label lbl-bk">Bán Kết 2</span></td>
-        <td>Set 1</td>
+        <td>2</td><td><span class="match-label lbl-bk">Bán Kết 2</span></td><td>Set 1</td>
         <td class="cell-left"><span id="lbl_l2_t3" class="player-display"></span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l2_3">
-              <button class="btn-step" onclick="step('s_l2_3', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l2_3" class="score-in" min="0" oninput="handleInputManual('s_l2_3')">
-              <button class="btn-step" onclick="step('s_l2_3', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l2_3"><button class="btn-step" onclick="step('s_l2_3', -1)">-</button><input type="number" inputmode="numeric" id="s_l2_3" class="score-in" min="0" oninput="handleInputManual('s_l2_3')"><button class="btn-step" onclick="step('s_l2_3', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l2_4">
-              <button class="btn-step" onclick="step('s_l2_4', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l2_4" class="score-in" min="0" oninput="handleInputManual('s_l2_4')">
-              <button class="btn-step" onclick="step('s_l2_4', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l2_4"><button class="btn-step" onclick="step('s_l2_4', -1)">-</button><input type="number" inputmode="numeric" id="s_l2_4" class="score-in" min="0" oninput="handleInputManual('s_l2_4')"><button class="btn-step" onclick="step('s_l2_4', 1)">+</button></div>
           </div>
         </td>
         <td class="cell-left"><span id="lbl_l2_t4" class="player-display"></span></td>
       </tr>
       <tr>
-        <td>3</td>
-        <td><span class="match-label lbl-bk">Bán Kết 1</span></td>
-        <td>Set 2</td>
+        <td>3</td><td><span class="match-label lbl-bk">Bán Kết 1</span></td><td>Set 2</td>
         <td class="cell-left"><span id="lbl_l3_t1" class="player-display"></span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l3_1">
-              <button class="btn-step" onclick="step('s_l3_1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l3_1" class="score-in" min="0" oninput="handleInputManual('s_l3_1')">
-              <button class="btn-step" onclick="step('s_l3_1', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l3_1"><button class="btn-step" onclick="step('s_l3_1', -1)">-</button><input type="number" inputmode="numeric" id="s_l3_1" class="score-in" min="0" oninput="handleInputManual('s_l3_1')"><button class="btn-step" onclick="step('s_l3_1', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l3_2">
-              <button class="btn-step" onclick="step('s_l3_2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l3_2" class="score-in" min="0" oninput="handleInputManual('s_l3_2')">
-              <button class="btn-step" onclick="step('s_l3_2', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l3_2"><button class="btn-step" onclick="step('s_l3_2', -1)">-</button><input type="number" inputmode="numeric" id="s_l3_2" class="score-in" min="0" oninput="handleInputManual('s_l3_2')"><button class="btn-step" onclick="step('s_l3_2', 1)">+</button></div>
           </div>
         </td>
         <td class="cell-left"><span id="lbl_l3_t2" class="player-display"></span></td>
       </tr>
       <tr>
-        <td>4</td>
-        <td><span class="match-label lbl-bk">Bán Kết 2</span></td>
-        <td>Set 2</td>
+        <td>4</td><td><span class="match-label lbl-bk">Bán Kết 2</span></td><td>Set 2</td>
         <td class="cell-left"><span id="lbl_l4_t3" class="player-display"></span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l4_3">
-              <button class="btn-step" onclick="step('s_l4_3', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l4_3" class="score-in" min="0" oninput="handleInputManual('s_l4_3')">
-              <button class="btn-step" onclick="step('s_l4_3', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l4_3"><button class="btn-step" onclick="step('s_l4_3', -1)">-</button><input type="number" inputmode="numeric" id="s_l4_3" class="score-in" min="0" oninput="handleInputManual('s_l4_3')"><button class="btn-step" onclick="step('s_l4_3', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l4_4">
-              <button class="btn-step" onclick="step('s_l4_4', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l4_4" class="score-in" min="0" oninput="handleInputManual('s_l4_4')">
-              <button class="btn-step" onclick="step('s_l4_4', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l4_4"><button class="btn-step" onclick="step('s_l4_4', -1)">-</button><input type="number" inputmode="numeric" id="s_l4_4" class="score-in" min="0" oninput="handleInputManual('s_l4_4')"><button class="btn-step" onclick="step('s_l4_4', 1)">+</button></div>
           </div>
         </td>
         <td class="cell-left"><span id="lbl_l4_t4" class="player-display"></span></td>
       </tr>
-
       <tr id="row_l5" class="conditional-row">
-        <td>5</td>
-        <td><span class="match-label lbl-bk">Bán Kết 1 (Nếu có)</span></td>
-        <td>Set 3 (Quyết định)</td>
+        <td>5</td><td><span class="match-label lbl-bk">Bán Kết 1 (Nếu có)</span></td><td>Set 3 (Quyết định)</td>
         <td class="cell-left"><span id="lbl_l5_t1" class="player-display"></span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l5_1">
-              <button class="btn-step" onclick="step('s_l5_1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l5_1" class="score-in" min="0" oninput="handleInputManual('s_l5_1')">
-              <button class="btn-step" onclick="step('s_l5_1', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l5_1"><button class="btn-step" onclick="step('s_l5_1', -1)">-</button><input type="number" inputmode="numeric" id="s_l5_1" class="score-in" min="0" oninput="handleInputManual('s_l5_1')"><button class="btn-step" onclick="step('s_l5_1', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l5_2">
-              <button class="btn-step" onclick="step('s_l5_2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l5_2" class="score-in" min="0" oninput="handleInputManual('s_l5_2')">
-              <button class="btn-step" onclick="step('s_l5_2', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l5_2"><button class="btn-step" onclick="step('s_l5_2', -1)">-</button><input type="number" inputmode="numeric" id="s_l5_2" class="score-in" min="0" oninput="handleInputManual('s_l5_2')"><button class="btn-step" onclick="step('s_l5_2', 1)">+</button></div>
           </div>
         </td>
         <td class="cell-left"><span id="lbl_l5_t2" class="player-display"></span></td>
       </tr>
       <tr id="row_l6" class="conditional-row">
-        <td>6</td>
-        <td><span class="match-label lbl-bk">Bán Kết 2 (Nếu có)</span></td>
-        <td>Set 3 (Quyết định)</td>
+        <td>6</td><td><span class="match-label lbl-bk">Bán Kết 2 (Nếu có)</span></td><td>Set 3 (Quyết định)</td>
         <td class="cell-left"><span id="lbl_l6_t3" class="player-display"></span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l6_3">
-              <button class="btn-step" onclick="step('s_l6_3', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l6_3" class="score-in" min="0" oninput="handleInputManual('s_l6_3')">
-              <button class="btn-step" onclick="step('s_l6_3', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l6_3"><button class="btn-step" onclick="step('s_l6_3', -1)">-</button><input type="number" inputmode="numeric" id="s_l6_3" class="score-in" min="0" oninput="handleInputManual('s_l6_3')"><button class="btn-step" onclick="step('s_l6_3', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l6_4">
-              <button class="btn-step" onclick="step('s_l6_4', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l6_4" class="score-in" min="0" oninput="handleInputManual('s_l6_4')">
-              <button class="btn-step" onclick="step('s_l6_4', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l6_4"><button class="btn-step" onclick="step('s_l6_4', -1)">-</button><input type="number" inputmode="numeric" id="s_l6_4" class="score-in" min="0" oninput="handleInputManual('s_l6_4')"><button class="btn-step" onclick="step('s_l6_4', 1)">+</button></div>
           </div>
         </td>
         <td class="cell-left"><span id="lbl_l6_t4" class="player-display"></span></td>
       </tr>
-
       <tr>
-        <td>7</td>
-        <td><span class="match-label lbl-tb">Tranh Hạng Ba</span></td>
-        <td>Set 1</td>
-        <td class="cell-left"><span id="lbl_l7_lost1" class="player-display">Chờ Thua BK1</span></td>
+        <td>7</td><td><span class="match-label lbl-tb">Tranh Hạng Ba</span></td><td>Set 1</td>
+        <td class="cell-left"><span id="lbl_l7_lost1">Chờ Thua BK1</span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l7_lost1">
-              <button class="btn-step" onclick="step('s_l7_lost1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l7_lost1" class="score-in" min="0" oninput="handleInputManual('s_l7_lost1')">
-              <button class="btn-step" onclick="step('s_l7_lost1', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l7_lost1"><button class="btn-step" onclick="step('s_l7_lost1', -1)">-</button><input type="number" inputmode="numeric" id="s_l7_lost1" class="score-in" min="0" oninput="handleInputManual('s_l7_lost1')"><button class="btn-step" onclick="step('s_l7_lost1', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l7_lost2">
-              <button class="btn-step" onclick="step('s_l7_lost2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l7_lost2" class="score-in" min="0" oninput="handleInputManual('s_l7_lost2')">
-              <button class="btn-step" onclick="step('s_l7_lost2', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l7_lost2"><button class="btn-step" onclick="step('s_l7_lost2', -1)">-</button><input type="number" inputmode="numeric" id="s_l7_lost2" class="score-in" min="0" oninput="handleInputManual('s_l7_lost2')"><button class="btn-step" onclick="step('s_l7_lost2', 1)">+</button></div>
           </div>
         </td>
-        <td class="cell-left"><span id="lbl_l7_lost2" class="player-display">Chờ Thua BK2</span></td>
+        <td class="cell-left"><span id="lbl_l7_lost2">Chờ Thua BK2</span></td>
       </tr>
       <tr>
-        <td>8</td>
-        <td><span class="match-label lbl-ck">Chung Kết</span></td>
-        <td>Set 1</td>
-        <td class="cell-left"><span id="lbl_l8_win1" class="player-display">Chờ Thắng BK1</span></td>
+        <td>8</td><td><span class="match-label lbl-ck">Chung Kết</span></td><td>Set 1</td>
+        <td class="cell-left"><span id="lbl_l8_win1">Chờ Thắng BK1</span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l8_win1">
-              <button class="btn-step" onclick="step('s_l8_win1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l8_win1" class="score-in" min="0" oninput="handleInputManual('s_l8_win1')">
-              <button class="btn-step" onclick="step('s_l8_win1', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l8_win1"><button class="btn-step" onclick="step('s_l8_win1', -1)">-</button><input type="number" inputmode="numeric" id="s_l8_win1" class="score-in" min="0" oninput="handleInputManual('s_l8_win1')"><button class="btn-step" onclick="step('s_l8_win1', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l8_win2">
-              <button class="btn-step" onclick="step('s_l8_win2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l8_win2" class="score-in" min="0" oninput="handleInputManual('s_l8_win2')">
-              <button class="btn-step" onclick="step('s_l8_win2', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l8_win2"><button class="btn-step" onclick="step('s_l8_win2', -1)">-</button><input type="number" inputmode="numeric" id="s_l8_win2" class="score-in" min="0" oninput="handleInputManual('s_l8_win2')"><button class="btn-step" onclick="step('s_l8_win2', 1)">+</button></div>
           </div>
         </td>
-        <td class="cell-left"><span id="lbl_l8_win2" class="player-display">Chờ Thắng BK2</span></td>
+        <td class="cell-left"><span id="lbl_l8_win2">Chờ Thắng BK2</span></td>
       </tr>
       <tr>
-        <td>9</td>
-        <td><span class="match-label lbl-tb">Tranh Hạng Ba</span></td>
-        <td>Set 2</td>
-        <td class="cell-left"><span id="lbl_l9_lost1" class="player-display">Chờ Thua BK1</span></td>
+        <td>9</td><td><span class="match-label lbl-tb">Tranh Hạng Ba</span></td><td>Set 2</td>
+        <td class="cell-left"><span id="lbl_l9_lost1">Chờ Thua BK1</span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l9_lost1">
-              <button class="btn-step" onclick="step('s_l9_lost1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l9_lost1" class="score-in" min="0" oninput="handleInputManual('s_l9_lost1')">
-              <button class="btn-step" onclick="step('s_l9_lost1', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l9_lost1"><button class="btn-step" onclick="step('s_l9_lost1', -1)">-</button><input type="number" inputmode="numeric" id="s_l9_lost1" class="score-in" min="0" oninput="handleInputManual('s_l9_lost1')"><button class="btn-step" onclick="step('s_l9_lost1', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l9_lost2">
-              <button class="btn-step" onclick="step('s_l9_lost2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l9_lost2" class="score-in" min="0" oninput="handleInputManual('s_l9_lost2')">
-              <button class="btn-step" onclick="step('s_l9_lost2', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l9_lost2"><button class="btn-step" onclick="step('s_l9_lost2', -1)">-</button><input type="number" inputmode="numeric" id="s_l9_lost2" class="score-in" min="0" oninput="handleInputManual('s_l9_lost2')"><button class="btn-step" onclick="step('s_l9_lost2', 1)">+</button></div>
           </div>
         </td>
-        <td class="cell-left"><span id="lbl_l9_lost2" class="player-display">Chờ Thua BK2</span></td>
+        <td class="cell-left"><span id="lbl_l9_lost2">Chờ Thua BK2</span></td>
       </tr>
       <tr>
-        <td>10</td>
-        <td><span class="match-label lbl-ck">Chung Kết</span></td>
-        <td>Set 2</td>
-        <td class="cell-left"><span id="lbl_l10_win1" class="player-display">Chờ Thắng BK1</span></td>
+        <td>10</td><td><span class="match-label lbl-ck">Chung Kết</span></td><td>Set 2</td>
+        <td class="cell-left"><span id="lbl_l10_win1">Chờ Thắng BK1</span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l10_win1">
-              <button class="btn-step" onclick="step('s_l10_win1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l10_win1" class="score-in" min="0" oninput="handleInputManual('s_l10_win1')">
-              <button class="btn-step" onclick="step('s_l10_win1', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l10_win1"><button class="btn-step" onclick="step('s_l10_win1', -1)">-</button><input type="number" inputmode="numeric" id="s_l10_win1" class="score-in" min="0" oninput="handleInputManual('s_l10_win1')"><button class="btn-step" onclick="step('s_l10_win1', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l10_win2">
-              <button class="btn-step" onclick="step('s_l10_win2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l10_win2" class="score-in" min="0" oninput="handleInputManual('s_l10_win2')">
-              <button class="btn-step" onclick="step('s_l10_win2', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l10_win2"><button class="btn-step" onclick="step('s_l10_win2', -1)">-</button><input type="number" inputmode="numeric" id="s_l10_win2" class="score-in" min="0" oninput="handleInputManual('s_l10_win2')"><button class="btn-step" onclick="step('s_l10_win2', 1)">+</button></div>
           </div>
         </td>
-        <td class="cell-left"><span id="lbl_l10_win2" class="player-display">Chờ Thắng BK2</span></td>
+        <td class="cell-left"><span id="lbl_l10_win2">Chờ Thắng BK2</span></td>
       </tr>
-
       <tr id="row_l11" class="conditional-row">
-        <td>11</td>
-        <td><span class="match-label lbl-tb">Tranh Hạng Ba (Nếu có)</span></td>
-        <td>Set 3 (Quyết định)</td>
-        <td class="cell-left"><span id="lbl_l11_lost1" class="player-display">Chờ Thua BK1</span></td>
+        <td>11</td><td><span class="match-label lbl-tb">Tranh Hạng Ba (Nếu có)</span></td><td>Set 3 (Quyết định)</td>
+        <td class="cell-left"><span id="lbl_l11_lost1">Chờ Thua BK1</span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l11_lost1">
-              <button class="btn-step" onclick="step('s_l11_lost1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l11_lost1" class="score-in" min="0" oninput="handleInputManual('s_l11_lost1')">
-              <button class="btn-step" onclick="step('s_l11_lost1', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l11_lost1"><button class="btn-step" onclick="step('s_l11_lost1', -1)">-</button><input type="number" inputmode="numeric" id="s_l11_lost1" class="score-in" min="0" oninput="handleInputManual('s_l11_lost1')"><button class="btn-step" onclick="step('s_l11_lost1', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l11_lost2">
-              <button class="btn-step" onclick="step('s_l11_lost2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l11_lost2" class="score-in" min="0" oninput="handleInputManual('s_l11_lost2')">
-              <button class="btn-step" onclick="step('s_l11_lost2', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l11_lost2"><button class="btn-step" onclick="step('s_l11_lost2', -1)">-</button><input type="number" inputmode="numeric" id="s_l11_lost2" class="score-in" min="0" oninput="handleInputManual('s_l11_lost2')"><button class="btn-step" onclick="step('s_l11_lost2', 1)">+</button></div>
           </div>
         </td>
-        <td class="cell-left"><span id="lbl_l11_lost2" class="player-display">Chờ Thua BK2</span></td>
+        <td class="cell-left"><span id="lbl_l11_lost2">Chờ Thua BK2</span></td>
       </tr>
       <tr id="row_l12" class="conditional-row">
-        <td>12</td>
-        <td><span class="match-label lbl-ck">Chung Kết (Nếu có)</span></td>
-        <td>Set 3 (Quyết định)</td>
-        <td class="cell-left"><span id="lbl_l12_win1" class="player-display">Chờ Thắng BK1</span></td>
+        <td>12</td><td><span class="match-label lbl-ck">Chung Kết (Nếu có)</span></td><td>Set 3 (Quyết định)</td>
+        <td class="cell-left"><span id="lbl_l12_win1">Chờ Thắng BK1</span></td>
         <td>
           <div class="score-stepper-container">
-            <div class="score-stepper" id="step_s_l12_win1">
-              <button class="btn-step" onclick="step('s_l12_win1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l12_win1" class="score-in" min="0" oninput="handleInputManual('s_l12_win1')">
-              <button class="btn-step" onclick="step('s_l12_win1', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l12_win1"><button class="btn-step" onclick="step('s_l12_win1', -1)">-</button><input type="number" inputmode="numeric" id="s_l12_win1" class="score-in" min="0" oninput="handleInputManual('s_l12_win1')"><button class="btn-step" onclick="step('s_l12_win1', 1)">+</button></div>
             <span class="score-colon">:</span>
-            <div class="score-stepper" id="step_s_l12_win2">
-              <button class="btn-step" onclick="step('s_l12_win2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l12_win2" class="score-in" min="0" oninput="handleInputManual('s_l12_win2')">
-              <button class="btn-step" onclick="step('s_l12_win2', 1)">+</button>
-            </div>
+            <div class="score-stepper" id="step_s_l12_win2"><button class="btn-step" onclick="step('s_l12_win2', -1)">-</button><input type="number" inputmode="numeric" id="s_l12_win2" class="score-in" min="0" oninput="handleInputManual('s_l12_win2')"><button class="btn-step" onclick="step('s_l12_win2', 1)">+</button></div>
           </div>
         </td>
-        <td class="cell-left"><span id="lbl_l12_win2" class="player-display">Chờ Thắng BK2</span></td>
+        <td class="cell-left"><span id="lbl_l12_win2">Chờ Thắng BK2</span></td>
       </tr>
     </tbody>
   </table>
@@ -650,26 +436,10 @@ body {
 
 <div class="final-box">
   <div class="final-title">🏆 Kết Quả Chung Cuộc</div>
-  <div class="final-row">
-    <div class="final-medal">🥇</div>
-    <div class="final-name" id="f_1st">Chờ chung kết...</div>
-    <div class="final-label">VÔ ĐỊCH</div>
-  </div>
-  <div class="final-row">
-    <div class="final-medal">🥈</div>
-    <div class="final-name" id="f_2nd">—</div>
-    <div class="final-label">Á QUÂN</div>
-  </div>
-  <div class="final-row">
-    <div class="final-medal">🥉</div>
-    <div class="final-name" id="f_3rd">Chờ tranh hạng ba...</div>
-    <div class="final-label">HẠNG BA</div>
-  </div>
-  <div class="final-row" style="border-color:#e2e8f0;">
-    <div class="final-medal" style="font-size:0.9rem">4️⃣</div>
-    <div class="final-name" id="f_4th" style="color:#94a3b8">—</div>
-    <div class="final-label">HẠNG TƯ</div>
-  </div>
+  <div class="final-row"><div class="final-medal">🥇</div><div class="final-name" id="f_1st">Chờ chung kết...</div><div class="final-label">VÔ ĐỊCH</div></div>
+  <div class="final-row"><div class="final-medal">🥈</div><div class="final-name" id="f_2nd">—</div><div class="final-label">Á QUÂN</div></div>
+  <div class="final-row"><div class="final-medal">🥉</div><div class="final-name" id="f_3rd">Chờ tranh hạng ba...</div><div class="final-label">HẠNG BA</div></div>
+  <div class="final-row" style="border-color:#e2e8f0;"><div class="final-medal" style="font-size:0.9rem">4️⃣</div><div class="final-name" id="f_4th" style="color:#94a3b8">—</div><div class="final-label">HẠNG TƯ</div></div>
 </div>
 
 <div class="reset-container">
@@ -678,7 +448,6 @@ body {
 </div>
 
 <script>
-// 🔽 CẤU HÌNH THỰC TẾ FIREBASE CỦA BẠN 🔽
 const firebaseConfig = {
   apiKey: "AIzaSyDVF-OImZ9yy9c_4clm1Idp3QAsCP56qcI",
   authDomain: "giai-cau-long-san-vuon.firebaseapp.com",
@@ -689,53 +458,29 @@ const firebaseConfig = {
   appId: "1:490739341912:web:97c558dc2fa9ebb0bd882d",
   measurementId: "G-VNB07NKS1B"
 };
-// hidden reset
- let totalClickCount = 0;
 
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 🚀 BIẾN TOÀN CỤC QUẢN LÝ GIẢI ĐẤU HIỆN TẠI
+let currentTournamentId = "giai_mac_dinh"; 
+let dbRef = null; 
+
+let totalClickCount = 0;
 document.addEventListener('click', function(e) {
-  // Chỉ tính click vào những vùng trống, không click vào nút/input
-  if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+  if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
     totalClickCount++;
-    
-    // Mốc 10 click: Hiện ô mật khẩu
-    if (totalClickCount === 10) {
-      document.getElementById('password-section').style.display = 'block';
-    }
-    
-    // Mốc 25 click: Hiện 2 nút quản trị
+    if (totalClickCount === 10) document.getElementById('password-section').style.display = 'block';
     if (totalClickCount === 25) {
       document.getElementById('btn-draw-reset').style.display = 'inline-block';
       document.getElementById('btn-tournament-clear').style.display = 'inline-block';
       alert("⚠️ Chế độ Quản trị đã được mở khóa!");
     }
-    
-    // Reset sau 10 giây nếu không click tiếp
     clearTimeout(window.adminTimer);
     window.adminTimer = setTimeout(() => { totalClickCount = 0; }, 10000);
   }
 });
 
-//hidden password
- let clickCount = 0;
-document.addEventListener('click', function() {
-  clickCount++;
-  if (clickCount === 15) {
-    const passSection = document.getElementById('password-section');
-    passSection.style.display = 'block'; // Hiện ô mật khẩu lên
-    alert("Đã mở khóa bảng điều khiển trọng tài!");
-  }
-  
-  // Tự reset sau 5 giây nếu không click đủ 10 lần
-  clearTimeout(window.clickTimer);
-  window.clickTimer = setTimeout(() => { clickCount = 0; }, 5000);
-}); 
-
-// Khởi tạo ứng dụng Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const tournamentRef = db.ref('badminton_tournament');
-
-// Quản lý trạng thái Bốc thăm nội bộ
 let poolMembers = [];
 let poolTeams = [1, 2, 3, 4];
 let drawHistory = {}; 
@@ -747,7 +492,111 @@ const scoreIds = [
 ];
 const nameIds = ['t1_p1','t1_p2', 't2_p1','t2_p2', 't3_p1','t3_p2', 't4_p1','t4_p2'];
 
-// Hàm xử lý lõi Cơ Chế Bốc Thăm
+// ── 🛠️ HÀM KHỞI TẠO VÀ QUẢN LÝ DANH SÁCH GIẢI ĐẤU (MỚI) ──
+function initTournamentSystem() {
+  // Lắng nghe danh sách giải đấu từ Firebase
+  db.ref('tournaments_list').on('value', (snapshot) => {
+    const list = snapshot.val();
+    const selectEl = document.getElementById('tournament_select');
+    selectEl.innerHTML = "";
+    
+    if (!list) {
+      // Nếu chưa có giải nào, tạo một giải mặc định ban đầu
+      db.ref('tournaments_list/giai_mac_dinh').set("Giải Đấu Mặc Định");
+      return;
+    }
+
+    Object.keys(list).forEach(id => {
+      let option = document.createElement('option');
+      option.value = id;
+      option.textContent = list[id];
+      selectEl.appendChild(option);
+    });
+
+    // Giữ nguyên giải đấu đang chọn nếu nó vẫn tồn tại
+    if (Object.keys(list).includes(currentTournamentId)) {
+      selectEl.value = currentTournamentId;
+    } else {
+      currentTournamentId = Object.keys(list)[0];
+      selectEl.value = currentTournamentId;
+    }
+    
+    bindTournamentRealtime();
+  });
+}
+
+function createNewTournament() {
+  const nameIn = document.getElementById('new_tournament_name');
+  const name = nameIn.value.trim();
+  if(!name) { alert("Vui lòng nhập tên giải đấu!"); return; }
+  
+  // Tạo slug ID từ tên giải đấu không dấu
+  const id = "giai_" + name.toLowerCase().replace(/[^a-z0-9]/g, "_").replace(/_+/g, "_") + "_" + Math.floor(Math.random()*1000);
+  
+  db.ref('tournaments_list/' + id).set(name).then(() => {
+    nameIn.value = "";
+    switchTournament(id);
+    alert("Đã tạo và chuyển sang giải đấu mới thành công!");
+  });
+}
+
+function switchTournament(id) {
+  currentTournamentId = id;
+  // Hủy lắng nghe cũ
+  if(dbRef) dbRef.off();
+  bindTournamentRealtime();
+}
+
+function bindTournamentRealtime() {
+  dbRef = db.ref('tournaments_data/' + currentTournamentId);
+  
+  // Lắng nghe Realtime cho giải đấu cụ thể
+  dbRef.on('value', (snapshot) => {
+    const data = snapshot.val() || {};
+    
+    // 1. Đồng bộ kết quả bốc thăm
+    drawHistory = data.draw_history || {};
+    poolMembers = data.pool_members || [];
+    poolTeams = data.pool_teams || [1, 2, 3, 4];
+    
+    // Reset giao diện nút bấm bốc thăm về mặc định trước khi fill dữ liệu
+    for(let i=1; i<=4; i++) {
+      document.getElementById(`btn_draw_${i}`).disabled = false;
+      document.getElementById(`draw_log_${i}`).innerHTML = `<span>Đội trưởng ${String.fromCharCode(64 + i)}:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span>`;
+    }
+    
+    Object.keys(drawHistory).forEach(k => {
+      let d = drawHistory[k];
+      if (document.getElementById(`btn_draw_${k}`)) {
+        document.getElementById(`btn_draw_${k}`).disabled = true;
+        let groupLabel = (d.teamSlot <= 2) ? "BK1" : "BK2";
+        document.getElementById(`draw_log_${k}`).innerHTML = `<span>${d.captain}:</span> <span style="font-weight:700; color:#16a34a"> Ghép với [${d.member}] ➔ Đội ${d.teamSlot} (${groupLabel})</span>`;
+      }
+    });
+
+    // 2. Đồng bộ Tên cặp đấu
+    const names = data.team_names || {};
+    nameIds.forEach(id => {
+      const inputEl = document.getElementById(id);
+      if (inputEl && document.activeElement !== inputEl) {
+        inputEl.value = names[id] || "";
+      }
+    });
+
+    // 3. Đồng bộ Điểm số
+    const scores = data.scores || {};
+    scoreIds.forEach(id => {
+      const inputEl = document.getElementById(id);
+      if (inputEl && document.activeElement !== inputEl) {
+        inputEl.value = (scores[id] !== undefined && scores[id] !== "") ? scores[id] : "";
+      }
+    });
+
+    updateNames();
+  });
+}
+
+// ── 🎲 CƠ CHẾ BỐC THĂM ĐỒNG BỘ ──
 function executeDraw(captainIndex) {
   if (poolMembers.length === 0 && Object.keys(drawHistory).length === 0) {
     for(let i=1; i<=4; i++) {
@@ -758,28 +607,19 @@ function executeDraw(captainIndex) {
   }
 
   const captainName = document.getElementById(`cap_${captainIndex}`).value.trim() || `Đội Trưởng ${String.fromCharCode(64 + captainIndex)}`;
-  
   const randMemIdx = Math.floor(Math.random() * poolMembers.length);
   const chosenMember = poolMembers.splice(randMemIdx, 1)[0];
-
   const randTeamIdx = Math.floor(Math.random() * poolTeams.length);
   const chosenTeamSlot = poolTeams.splice(randTeamIdx, 1)[0];
 
-  drawHistory[captainIndex] = {
-    captain: captainName,
-    member: chosenMember,
-    teamSlot: chosenTeamSlot
-  };
+  drawHistory[captainIndex] = { captain: captainName, member: chosenMember, teamSlot: chosenTeamSlot };
 
-  let targetRow = document.getElementById(`draw_log_${captainIndex}`);
-  let groupLabel = (chosenTeamSlot <= 2) ? "BK1" : "BK2";
-  targetRow.innerHTML = `<span>${captainName}:</span> <span style="font-weight:700; color:#16a34a"> Ghép với [${chosenMember}] ➔ Đội ${chosenTeamSlot} (${groupLabel})</span>`;
-  
-  document.getElementById(`btn_draw_${captainIndex}`).disabled = true;
-
-  localStorage.setItem('cached_draw_history', JSON.stringify(drawHistory));
-  localStorage.setItem('cached_pool_members', JSON.stringify(poolMembers));
-  localStorage.setItem('cached_pool_teams', JSON.stringify(poolTeams));
+  // Đẩy trực tiếp lên Firebase giải đấu đang chọn
+  dbRef.update({
+    draw_history: drawHistory,
+    pool_members: poolMembers,
+    pool_teams: poolTeams
+  });
 
   if (Object.keys(drawHistory).length === 4) {
     autoFillTournamentRows();
@@ -787,31 +627,27 @@ function executeDraw(captainIndex) {
 }
 
 function autoFillTournamentRows() {
+  let namesObj = {};
   Object.keys(drawHistory).forEach(key => {
     let data = drawHistory[key];
     let slot = data.teamSlot;
     document.getElementById(`t${slot}_p1`).value = data.captain;
     document.getElementById(`t${slot}_p2`).value = data.member;
+    namesObj[`t${slot}_p1`] = data.captain;
+    namesObj[`t${slot}_p2`] = data.member;
   });
-
-  saveAndResetNames();
+  dbRef.child('team_names').update(namesObj);
 }
 
 function resetDrawOnly() {
-  poolMembers = [];
-  poolTeams = [1, 2, 3, 4];
-  drawHistory = {};
-  localStorage.removeItem('cached_draw_history');
-  localStorage.removeItem('cached_pool_members');
-  localStorage.removeItem('cached_pool_teams');
-
-  for(let i=1; i<=4; i++) {
-    document.getElementById(`btn_draw_${i}`).disabled = false;
-    document.getElementById(`draw_log_${i}`).innerHTML = `<span>Đội trưởng ${String.fromCharCode(64 + i)}:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span>`;
+  if(confirm("Reset riêng lượt bốc thăm của giải này?")) {
+    dbRef.child('draw_history').remove();
+    dbRef.child('pool_members').remove();
+    dbRef.child('pool_teams').remove();
   }
 }
 
-// Hàm bổ trợ phân tích trận và tìm cặp điểm đối thủ tương ứng
+// ── 📈 BUSINESS RULES & STEPPER ĐỒNG BỘ ──
 function getRivalId(id) {
   const pairs = [
     ['s_l1_1','s_l1_2'], ['s_l2_3','s_l2_4'], ['s_l3_1','s_l3_2'], ['s_l4_3','s_l4_4'],
@@ -825,105 +661,59 @@ function getRivalId(id) {
   return null;
 }
 
-// Hàm bổ trợ lấy cấu hình Luật Điểm dựa trên mã trận đấu
 function getMatchRules(id) {
-  const parts = id.split('_'); // ví dụ: ['s', 'l1', '1']
-  const matchKey = parts[1];   // 'l1', 'l2', ..., 'l12'
-  
-  // Trận 1 đến 6 là Bán kết (BK) -> Target: 15, Trần: 17
-  if (['l1', 'l2', 'l3', 'l4', 'l5', 'l6'].includes(matchKey)) {
-    return { targetWin: 15, maxCeiling: 17 };
-  }
-  // Trận 7 đến 12 là Tranh Hạng 3 và Chung Kết -> Target: 21, Trần: 25
+  const parts = id.split('_');
+  const matchKey = parts[1];
+  if (['l1', 'l2', 'l3', 'l4', 'l5', 'l6'].includes(matchKey)) return { targetWin: 15, maxCeiling: 17 };
   return { targetWin: 21, maxCeiling: 25 };
 }
 
-// HÀM STEPPER CẬP NHẬT BUSINESS RULES & ĐỒNG BỘ FIREBASE
 function step(id, amount) {
- // 1. Kiểm tra mật khẩu trước khi làm bất cứ điều gì
   const pass = document.getElementById('admin_pass').value;
-  if (pass !== "170397") { // Thay "123456" bằng mật khẩu bạn muốn
-    alert("Sai mật khẩu trọng tài! Chỉ người có mật khẩu mới được sửa điểm.");
-    return;
-  }
+  if (pass !== "170397") { alert("Sai mật khẩu trọng tài!"); return; }
   
   const el = document.getElementById(id);
-  let current = parseInt(el.value);
-  if (isNaN(current)) current = 0;
-
+  let current = parseInt(el.value) || 0;
   let newValue = current + amount;
-
-  // Validation: Điểm không âm
   if (newValue < 0) return;
 
-  // Lấy quy định điểm trần của trận hiện tại
   const rules = getMatchRules(id);
-  
-  // Rule 1: Chặn nếu vượt điểm trần
   if (newValue > rules.maxCeiling) return;
 
-  // Rule 2: Nếu bấm tăng (+), kiểm tra xem trước đó set đấu đã kết thúc chưa
   if (amount > 0) {
     const rivalId = getRivalId(id);
-    let rivalVal = 0;
-    if (rivalId) {
-      const rEl = document.getElementById(rivalId);
-      if (rEl && !isNaN(parseInt(rEl.value))) rivalVal = parseInt(rEl.value);
-    }
-
+    let rivalVal = parseInt(document.getElementById(rivalId).value) || 0;
     let isSetFinished = false;
     if ((current >= rules.targetWin && current - rivalVal >= 2) || current === rules.maxCeiling) isSetFinished = true;
     if ((rivalVal >= rules.targetWin && rivalVal - current >= 2) || rivalVal === rules.maxCeiling) isSetFinished = true;
-
-    if (isSetFinished) {
-      alert(`Set đấu này đã hoàn thành kết quả (${rules.targetWin} điểm, trần ${rules.maxCeiling})! Sử dụng nút trừ (-) hoặc gõ sửa thủ công.`);
-      return;
-    }
+    if (isSetFinished) { alert("Set đấu đã kết thúc hoàn thành trước đó!"); return; }
   }
 
   el.value = newValue;
   calcAll();
-
-  // Đẩy trực tiếp điểm vừa thay đổi lên Firebase nhánh scores
-  if (typeof tournamentRef !== 'undefined') {
-    tournamentRef.child('scores').child(id).set(newValue);
-  }
+  dbRef.child('scores').child(id).set(newValue);
 }
 
-// Xử lý khi người dùng tự tay nhập/sửa số trực tiếp từ bàn phím
 function handleInputManual(id) {
   const pass = document.getElementById('admin_pass').value;
-  if (pass !== "170397") {
-    alert("Bạn không có quyền sửa!");
-    // Reset lại giá trị cũ từ Firebase nếu họ cố tình nhập tay
-    location.reload(); 
-    return;
-  }
+  if (pass !== "170397") { alert("Bạn không có quyền sửa!"); bindTournamentRealtime(); return; }
 
   const el = document.getElementById(id);
   let val = parseInt(el.value);
-  
-  if (isNaN(val) || val < 0) {
-    el.value = 0;
-    val = 0;
-  }
+  if (isNaN(val) || val < 0) val = 0;
 
   const rules = getMatchRules(id);
-  if (val > rules.maxCeiling) {
-    el.value = rules.maxCeiling;
-  }
+  if (val > rules.maxCeiling) val = rules.maxCeiling;
+  el.value = val;
 
   calcAll();
 
-  // Cập nhật Firebase nhánh scores một lượt sau khi nhập tay
-  if (typeof tournamentRef !== 'undefined') {
-    let allScores = {};
-    scoreIds.forEach(sid => {
-      let v = parseInt(document.getElementById(sid).value);
-      allScores[sid] = isNaN(v) ? "" : v;
-    });
-    tournamentRef.child('scores').update(allScores);
-  }
+  let allScores = {};
+  scoreIds.forEach(sid => {
+    let v = parseInt(document.getElementById(sid).value);
+    allScores[sid] = isNaN(v) ? "" : v;
+  });
+  dbRef.child('scores').update(allScores);
 }
 
 function getTeamName(num) {
@@ -934,14 +724,15 @@ function getTeamName(num) {
 }
 
 function saveAndResetNames() {
-  nameIds.forEach(id => { localStorage.setItem(id, document.getElementById(id).value); });
+  let namesObj = {};
+  nameIds.forEach(id => { namesObj[id] = document.getElementById(id).value; });
+  dbRef.child('team_names').update(namesObj);
   updateNames();
 }
 
 function updateNames() {
   const n1 = getTeamName(1), n2 = getTeamName(2);
   const n3 = getTeamName(3), n4 = getTeamName(4);
-
   document.getElementById('lbl_l1_t1').textContent = n1; document.getElementById('lbl_l1_t2').textContent = n2;
   document.getElementById('lbl_l2_t3').textContent = n3; document.getElementById('lbl_l2_t4').textContent = n4;
   document.getElementById('lbl_l3_t1').textContent = n1; document.getElementById('lbl_l3_t2').textContent = n2;
@@ -966,21 +757,16 @@ function styleInputPair(id1, id2) {
   else { step1.className = 'score-stepper'; step2.className = 'score-stepper'; }
 }
 
-// Kiểm tra một bên đã thực sự thắng set đấu hay chưa dựa vào luật điểm động của trận đó
 function isSetWon(id1, id2) {
-  const v1 = parseScore(id1);
-  const v2 = parseScore(id2);
-  if (v1 === null || v2 === null) return null; // Chưa nhập đủ điểm
-
+  const v1 = parseScore(id1), v2 = parseScore(id2);
+  if (v1 === null || v2 === null) return null;
   const rules = getMatchRules(id1);
-  
-  if ((v1 >= rules.targetWin && v1 - v2 >= 2) || v1 === rules.maxCeiling) return 1; // Đội 1 thắng
-  if ((v2 >= rules.targetWin && v2 - v1 >= 2) || v2 === rules.maxCeiling) return 2; // Đội 2 Thắng
-  return null; // Chưa phân thắng bại
+  if ((v1 >= rules.targetWin && v1 - v2 >= 2) || v1 === rules.maxCeiling) return 1;
+  if ((v2 >= rules.targetWin && v2 - v1 >= 2) || v2 === rules.maxCeiling) return 2;
+  return null;
 }
 
 function calcAll() {
-  scoreIds.forEach(id => { localStorage.setItem(id, document.getElementById(id).value); });
   const pairs = [
     ['s_l1_1','s_l1_2'], ['s_l2_3','s_l2_4'], ['s_l3_1','s_l3_2'], ['s_l4_3','s_l4_4'],
     ['s_l5_1','s_l5_2'], ['s_l6_3','s_l6_4'], ['s_l7_lost1','s_l7_lost2'], ['s_l8_win1','s_l8_win2'],
@@ -988,13 +774,11 @@ function calcAll() {
   ];
   pairs.forEach(p => styleInputPair(p[0], p[1]));
 
-  // TÍNH BÁN KẾT 1 (Áp dụng hàm kiểm tra isSetWon)
+  // TÍNH BÁN KẾT 1
   let bk1_1 = 0, bk1_2 = 0;
-  let w_s1 = isSetWon('s_l1_1', 's_l1_2');
-  let w_s3 = isSetWon('s_l3_1', 's_l3_2');
+  let w_s1 = isSetWon('s_l1_1', 's_l1_2'), w_s3 = isSetWon('s_l3_1', 's_l3_2');
   if (w_s1 === 1) bk1_1++; else if (w_s1 === 2) bk1_2++;
   if (w_s3 === 1) bk1_1++; else if (w_s3 === 2) bk1_2++;
-
   let showBK1_S3 = (bk1_1 === 1 && bk1_2 === 1);
   document.getElementById('row_l5').classList.toggle('show', showBK1_S3);
   if(showBK1_S3) {
@@ -1005,13 +789,11 @@ function calcAll() {
   if(bk1_1 >= 2) { winBK1 = getTeamName(1); lostBK1 = getTeamName(2); }
   else if(bk1_2 >= 2) { winBK1 = getTeamName(2); lostBK1 = getTeamName(1); }
 
-  // TÍNH BÁN KẾT 2 (Áp dụng hàm kiểm tra isSetWon)
+  // TÍNH BÁN KẾT 2
   let bk2_3 = 0, bk2_4 = 0;
-  let w_s2 = isSetWon('s_l2_3', 's_l2_4');
-  let w_s4 = isSetWon('s_l4_3', 's_l4_4');
+  let w_s2 = isSetWon('s_l2_3', 's_l2_4'), w_s4 = isSetWon('s_l4_3', 's_l4_4');
   if (w_s2 === 1) bk2_3++; else if (w_s2 === 2) bk2_4++;
   if (w_s4 === 1) bk2_3++; else if (w_s4 === 2) bk2_4++;
-
   let showBK2_S3 = (bk2_3 === 1 && bk2_4 === 1);
   document.getElementById('row_l6').classList.toggle('show', showBK2_S3);
   if(showBK2_S3) {
@@ -1022,8 +804,8 @@ function calcAll() {
   if(bk2_3 >= 2) { winBK2 = getTeamName(3); lostBK2 = getTeamName(4); }
   else if(bk2_4 >= 2) { winBK2 = getTeamName(4); lostBK2 = getTeamName(3); }
 
-  const lb_w1 = winBK1 || "Chờ Thắng BK1"; const lb_w2 = winBK2 || "Chờ Thắng BK2";
-  const lb_l1 = lostBK1 || "Chờ Thua BK1"; const lb_l2 = lostBK2 || "Chờ Thua BK2";
+  const lb_w1 = winBK1 || "Chờ Thắng BK1", lb_w2 = winBK2 || "Chờ Thắng BK2";
+  const lb_l1 = lostBK1 || "Chờ Thua BK1", lb_l2 = lostBK2 || "Chờ Thua BK2";
   ['l7_lost1','l9_lost1','l11_lost1'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_l1);
   ['l7_lost2','l9_lost2','l11_lost2'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_l2);
   ['l8_win1','l10_win1','l12_win1'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_w1);
@@ -1032,11 +814,9 @@ function calcAll() {
   // TÍNH TRANH HẠNG BA
   let tb_1 = 0, tb_2 = 0;
   if(lostBK1 && lostBK2) {
-    let w_s7 = isSetWon('s_l7_lost1', 's_l7_lost2');
-    let w_s9 = isSetWon('s_l9_lost1', 's_l9_lost2');
+    let w_s7 = isSetWon('s_l7_lost1', 's_l7_lost2'), w_s9 = isSetWon('s_l9_lost1', 's_l9_lost2');
     if (w_s7 === 1) tb_1++; else if (w_s7 === 2) tb_2++;
     if (w_s9 === 1) tb_1++; else if (w_s9 === 2) tb_2++;
-
     let showTB_S3 = (tb_1 === 1 && tb_2 === 1);
     document.getElementById('row_l11').classList.toggle('show', showTB_S3);
     if(showTB_S3) {
@@ -1048,11 +828,9 @@ function calcAll() {
   // TÍNH CHUNG KẾT
   let ck_1 = 0, ck_2 = 0;
   if(winBK1 && winBK2) {
-    let w_s8 = isSetWon('s_l8_win1', 's_l8_win2');
-    let w_s10 = isSetWon('s_l10_win1', 's_l10_win2');
+    let w_s8 = isSetWon('s_l8_win1', 's_l8_win2'), w_s10 = isSetWon('s_l10_win1', 's_l10_win2');
     if (w_s8 === 1) ck_1++; else if (w_s8 === 2) ck_2++;
     if (w_s10 === 1) ck_1++; else if (w_s10 === 2) ck_2++;
-
     let showCK_S3 = (ck_1 === 1 && ck_2 === 1);
     document.getElementById('row_l12').classList.toggle('show', showCK_S3);
     if(showCK_S3) {
@@ -1070,56 +848,14 @@ function calcAll() {
   else { document.getElementById('f_3rd').textContent = "Chờ tranh hạng ba..."; document.getElementById('f_4th').textContent = "—"; }
 }
 
-// LẮNG NGHE ĐỒNG BỘ DỮ LIỆU TỪ FIREBASE ĐỂ CẬP NHẬT GIAO DIỆN CHUNG
-if (typeof tournamentRef !== 'undefined') {
-  tournamentRef.child('scores').on('value', (snapshot) => {
-    const scores = snapshot.val();
-    if (scores) {
-      Object.keys(scores).forEach(id => {
-        const inputEl = document.getElementById(id);
-        // Tránh ghi đè khi trọng tài đang chủ động gõ dở ô đó
-        if (inputEl && document.activeElement !== inputEl) { 
-          inputEl.value = scores[id];
-        }
-      });
-      // Gọi tính toán và định hình màu sắc sau khi nhận điểm mới từ Firebase
-      calcAll();
-    }
-  });
-}
-
-function loadSavedData() {
-  const savedDraw = localStorage.getItem('cached_draw_history');
-  if (savedDraw) {
-    drawHistory = JSON.parse(savedDraw);
-    poolMembers = JSON.parse(localStorage.getItem('cached_pool_members')) || [];
-    poolTeams = JSON.parse(localStorage.getItem('cached_pool_teams')) || [];
-    Object.keys(drawHistory).forEach(k => {
-      let d = drawHistory[k];
-      document.getElementById(`btn_draw_${k}`).disabled = true;
-      document.getElementById(`draw_log_${k}`).innerHTML = `<span>${d.captain}:</span> <span style="font-weight:700; color:#16a34a"> Ghép với [${d.member}] ➔ Đội ${d.teamSlot}</span>`;
-    });
-  }
-
-  nameIds.forEach(id => { const val = localStorage.getItem(id); if (val !== null) document.getElementById(id).value = val; });
-  scoreIds.forEach(id => { const val = localStorage.getItem(id); if (val !== null) document.getElementById(id).value = val; });
-  updateNames();
-}
-
 function clearTournament() {
-  if (confirm("Xóa toàn bộ tiến trình bốc thăm, tên và điểm số để làm lại?")) {
-    localStorage.clear();
-    resetDrawOnly();
-    nameIds.forEach(id => document.getElementById(id).value = "");
-    scoreIds.forEach(id => document.getElementById(id).value = "");
-    if (typeof tournamentRef !== 'undefined') {
-      tournamentRef.child('scores').remove(); // Clear dữ liệu trên Firebase
-    }
-    updateNames();
+  if (confirm("Xóa sạch toàn bộ dữ liệu (Bốc thăm, Đội, Điểm) của giải đấu này?")) {
+    dbRef.remove();
   }
 }
 
-loadSavedData();
+// 🛫 KHỞI CHẠY HỆ THỐNG KHI TẢI TRANG
+initTournamentSystem();
 </script>
 </body>
 </html>
