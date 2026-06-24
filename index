@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giải Cầu Lông Sân Vườn</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #f0f4f8;
+  --surface:   #ffffff;
+  --surface2:  #f8fafc;
+  --border:    #e2e8f0;
+  --border2:   #cbd5e1;
+  --text:      #1e293b;
+  --text2:     #475569;
+  --text3:     #94a3b8;
+  --accent:    #0ea5e9;
+  --accent2:   #0284c7;
+  --gold:      #f59e0b;
+  --silver:    #64748b;
+  --bronze:    #b45309;
+  --green:     #16a34a;
+  --red:       #dc2626;
+  --bk-color:  #3b82f6;
+  --ck-color:  #f59e0b;
+  --tb-color:  #94a3b8;
+  --shadow:    0 1px 4px #0001, 0 2px 12px #0ea5e908;
+  --shadow-md: 0 4px 20px #0ea5e914;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  padding: 24px 12px 60px;
+}
+
+/* ── HEADER ── */
+.header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.header-badge {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 14px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
+.header h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.header-sub {
+  font-size: 0.75rem;
+  color: var(--text3);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+
+/* ── TEAM SETUP ── */
+.section-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  text-align: center;
+  margin-bottom: 10px;
+}
+.setup-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-width: 860px;
+  margin: 0 auto 28px;
+}
+.team-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 10px 8px;
+  box-shadow: var(--shadow);
+}
+.team-card-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.d1 { background: #3b82f6; }
+.d2 { background: #f59e0b; }
+.d3 { background: #10b981; }
+.d4 { background: #f43f5e; }
+.c1 { color: #2563eb; }
+.c2 { color: #d97706; }
+.c3 { color: #059669; }
+.c4 { color: #e11d48; }
+
+.team-name-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 9px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.team-name-input:focus { border-color: var(--accent); }
+.team-name-input::placeholder { color: var(--text3); font-weight: 400; }
+
+/* ── LAYOUT ── */
+.main { max-width: 900px; margin: 0 auto; }
+
+/* ── PHASE LABEL ── */
+.phase-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 10px;
+}
+.phase-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.phase-line { flex: 1; height: 1px; background: var(--border2); }
+.phase-note { font-size: 0.63rem; color: var(--text3); white-space: nowrap; font-style: italic; }
+
+.bk-badge  { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.ck-badge  { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.tb-badge  { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+/* ── MATCH CARD ── */
+.match-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.match-wrap.single { grid-template-columns: 1fr; max-width: 440px; margin-left: auto; margin-right: auto; }
+
+.match-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.match-card.bk-card { border-top: 3px solid #3b82f6; }
+.match-card.ck-card { border-top: 3px solid #f59e0b; }
+.match-card.tb-card { border-top: 3px solid #94a3b8; }
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.match-tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+.bk-tag  { background: #eff6ff; color: #2563eb; }
+.ck-tag  { background: #fffbeb; color: #b45309; }
+.tb-tag  { background: #f1f5f9; color: #475569; }
+
+.match-winner-display {
+  font-size: 0.6rem;
+  color: var(--green);
+  font-weight: 700;
+  display: none;
+}
+.match-winner-display.show { display: block; }
+
+/* TEAM ROWS */
+.team-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  margin-bottom: 4px;
+  border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+.team-row.winner-row { background: #f0fdf4; border-color: #bbf7d0; }
+.team-row.loser-row  { background: #fafafa; opacity: 0.6; }
+
+.team-row-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.team-row-name { font-size: 0.82rem; font-weight: 600; flex: 1; color: var(--text); }
+.team-row-score { font-size: 1rem; font-weight: 800; color: var(--text); width: 36px; text-align: right; }
+
+.vs-divider {
+  text-align: center;
+  font-size: 0.6rem;
+  color: var(--text3);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin: 2px 0;
+}
+
+/* SET TABLE */
+.set-table-wrap {
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.set-table-title {
+  font-size: 0.58rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.set-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.7rem;
+}
+.set-table th {
+  background: var(--surface2);
+  color: var(--text3);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.set-table td {
+  border: 1px solid var(--border);
+  padding: 3px 5px;
+  text-align: center;
+  vertical-align: middle;
+}
+.set-team-cell {
+  text-align: left !important;
+  font-weight: 600;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.score-cell input {
+  width: 36px;
+  height: 26px;
+  border: 1.5px solid var(--border2);
+  border-radius: 5px;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface2);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.score-cell input:focus { border-color: var(--accent); background: #fff; }
+.score-cell input.win-input { background: #f0fdf4; border-color: #86efac; color: var(--green); }
+.score-cell input.lose-input { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+
+.set-result-cell {
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+.set-win  { color: var(--green); }
+.set-lose { color: var(--red); }
+
+.xoay-note {
+  font-size: 0.58rem;
+  color: var(--text3);
+  margin-top: 5px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* ARROW */
+.bracket-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 0;
+  gap: 6px;
+}
+.bracket-arrow-lbl {
+  font-size: 0.58rem;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* FINAL RESULTS */
+.final-box {
+  background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
+  border: 2px solid #fde68a;
+  border-radius: 14px;
+  padding: 18px 20px;
+  max-width: 440px;
+  margin: 20px auto 0;
+  box-shadow: var(--shadow-md);
+}
+.final-title {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #92400e;
+  margin-bottom: 14px;
+}
+.final-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  background: #fff;
+  border: 1px solid #fde68a;
+}
+.final-medal { font-size: 1.2rem; width: 28px; text-align: center; }
+.final-name  { flex: 1; font-size: 0.88rem; font-weight: 700; color: var(--text); }
+.final-label { font-size: 0.6rem; color: var(--text3); }
+
+/* RULES BOX */
+.rules-wrap {
+  max-width: 860px;
+  margin: 24px auto 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.rules-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+}
+.rules-card-title {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.rules-card ul { list-style: none; }
+.rules-card li {
+  font-size: 0.68rem;
+  color: var(--text2);
+  padding: 3px 0;
+  padding-left: 14px;
+  position: relative;
+  line-height: 1.5;
+}
+.rules-card li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .setup-grid { grid-template-columns: repeat(2, 1fr); }
+  .match-wrap  { grid-template-columns: 1fr; }
+  .rules-wrap  { grid-template-columns: 1fr; }
+  .score-cell input { width: 30px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">🏸 Giải Cầu Lông Sân Vườn</div>
+  <h1>Sơ Đồ Thi Đấu & Xoay Tua</h1>
+  <p class="header-sub">4 Đội · Loại trực tiếp · Bán kết Set 15 · Chung kết & Hạng Ba Set 21 · Xoay tua sau mỗi set</p>
+</div>
+
+<!-- TEAM SETUP -->
+<div class="section-title">⬇ Nhập tên 4 đội tham dự</div>
+<div class="setup-grid">
+  <div class="team-card">
+    <div class="team-card-label"><div class="dot d1"></div><span class="c1">Đội 1</span></div>
+    <input class="team-name-input" id="tn1" placeholder="Tên đội 1..." oninput="refreshAll()">
+  </div>
+  <div class="team-card">
+    <div class="team-card-label"><div class="dot d2"></div><span class="c2">Đội 2</span></div>
+    <input class="team-name-input" id="tn2" placeholder="Tên đội 2..." oninput="refreshAll()">
+  </div>
+  <div class="team-card">
+    <div class="team-card-label"><div class="dot d3"></div><span class="c3">Đội 3</span></div>
+    <input class="team-name-input" id="tn3" placeholder="Tên đội 3..." oninput="refreshAll()">
+  </div>
+  <div class="team-card">
+    <div class="team-card-label"><div class="dot d4"></div><span class="c4">Đội 4</span></div>
+    <input class="team-name-input" id="tn4" placeholder="Tên đội 4..." oninput="refreshAll()">
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- BÁN KẾT -->
+  <div class="phase-row">
+    <span class="phase-badge bk-badge">Bán Kết</span>
+    <div class="phase-line"></div>
+    <span class="phase-note">Thắng 2 set trước · Mỗi set 15 điểm · Xoay tua sau set 1</span>
+  </div>
+
+  <div class="match-wrap">
+    <!-- BK1 -->
+    <div class="match-card bk-card" id="card-bk1">
+      <div class="match-header">
+        <span class="match-tag bk-tag">Bán Kết 1</span>
+        <span class="match-winner-display" id="bk1-win-display"></span>
+      </div>
+      <!-- Team rows summary -->
+      <div class="team-row" id="bk1-row-a">
+        <div class="team-row-dot d1"></div>
+        <div class="team-row-name" id="bk1-name-a">Đội 1</div>
+        <div class="team-row-score" id="bk1-sets-a">0</div>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="team-row" id="bk1-row-b">
+        <div class="team-row-dot d2"></div>
+        <div class="team-row-name" id="bk1-name-b">Đội 2</div>
+        <div class="team-row-score" id="bk1-sets-b">0</div>
+      </div>
+      <!-- SET TABLE -->
+      <div class="set-table-wrap">
+        <div class="set-table-title">Nhập điểm từng set · Tối đa 15 điểm</div>
+        <table class="set-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;width:38%">Đội</th>
+              <th>Set 1</th><th>Set 2</th><th>Set 3 (nếu có)</th><th>Tổng set thắng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="set-team-cell"><div class="dot d1" style="flex-shrink:0"></div><span id="bk1-tbl-a">Đội 1</span></div></td>
+              <td class="score-cell"><input type="number" id="bk1-s1a" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
+              <td class="score-cell"><input type="number" id="bk1-s2a" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
+              <td class="score-cell"><input type="number" id="bk1-s3a" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
+              <td class="set-result-cell" id="bk1-wina">–</td>
+            </tr>
+            <tr>
+              <td><div class="set-team-cell"><div class="dot d2" style="flex-shrink:0"></div><span id="bk1-tbl-b">Đội 2</span></div></td>
+              <td class="score-cell"><input type="number" id="bk1-s1b" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
+              <td class="score-cell"><input type="number" id="bk1-s2b" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
+              <td class="score-cell"><input type="number" id="bk1-s3b" min="0" max="21" placeholder="–" oninput="calcMatch('bk1')"></td>
+              <td class="set-result-cell" id="bk1-winb">–</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="xoay-note">🔄 Xoay tua sau Set 1 · Xoay lại nếu vào Set 3</div>
+      </div>
+    </div>
+
+    <!-- BK2 -->
+    <div class="match-card bk-card" id="card-bk2">
+      <div class="match-header">
+        <span class="match-tag bk-tag">Bán Kết 2</span>
+        <span class="match-winner-display" id="bk2-win-display"></span>
+      </div>
+      <div class="team-row" id="bk2-row-a">
+        <div class="team-row-dot d3"></div>
+        <div class="team-row-name" id="bk2-name-a">Đội 3</div>
+        <div class="team-row-score" id="bk2-sets-a">0</div>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="team-row" id="bk2-row-b">
+        <div class="team-row-dot d4"></div>
+        <div class="team-row-name" id="bk2-name-b">Đội 4</div>
+        <div class="team-row-score" id="bk2-sets-b">0</div>
+      </div>
+      <div class="set-table-wrap">
+        <div class="set-table-title">Nhập điểm từng set · Tối đa 15 điểm</div>
+        <table class="set-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;width:38%">Đội</th>
+              <th>Set 1</th><th>Set 2</th><th>Set 3 (nếu có)</th><th>Tổng set thắng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="set-team-cell"><div class="dot d3" style="flex-shrink:0"></div><span id="bk2-tbl-a">Đội 3</span></div></td>
+              <td class="score-cell"><input type="number" id="bk2-s1a" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
+              <td class="score-cell"><input type="number" id="bk2-s2a" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
+              <td class="score-cell"><input type="number" id="bk2-s3a" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
+              <td class="set-result-cell" id="bk2-wina">–</td>
+            </tr>
+            <tr>
+              <td><div class="set-team-cell"><div class="dot d4" style="flex-shrink:0"></div><span id="bk2-tbl-b">Đội 4</span></div></td>
+              <td class="score-cell"><input type="number" id="bk2-s1b" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
+              <td class="score-cell"><input type="number" id="bk2-s2b" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
+              <td class="score-cell"><input type="number" id="bk2-s3b" min="0" max="21" placeholder="–" oninput="calcMatch('bk2')"></td>
+              <td class="set-result-cell" id="bk2-winb">–</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="xoay-note">🔄 Xoay tua sau Set 1 · Xoay lại nếu vào Set 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARROW -->
+  <div class="bracket-arrow">
+    <svg width="18" height="24" viewBox="0 0 18 24"><line x1="9" y1="0" x2="9" y2="17" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/><polygon points="4,14 9,22 14,14" fill="#cbd5e1"/></svg>
+    <span class="bracket-arrow-lbl">người thắng vào chung kết · người thua tranh hạng ba</span>
+  </div>
+
+  <!-- CHUNG KẾT + TRANH HẠNG BA -->
+  <div class="phase-row">
+    <span class="phase-badge ck-badge">🏆 Chung Kết</span>
+    <div class="phase-line"></div>
+    <span class="phase-note">Thắng 2 set trước · Mỗi set 21 điểm · Xoay tua sau set 1</span>
+  </div>
+
+  <div class="match-wrap single">
+    <!-- CHUNG KẾT -->
+    <div class="match-card ck-card">
+      <div class="match-header">
+        <span class="match-tag ck-tag">⚔️ Chung Kết · Set 21</span>
+        <span class="match-winner-display" id="ck-win-display"></span>
+      </div>
+      <div class="team-row" id="ck-row-a">
+        <div class="team-row-dot" id="ck-dot-a" style="background:#94a3b8"></div>
+        <div class="team-row-name" id="ck-name-a">Thắng BK1</div>
+        <div class="team-row-score" id="ck-sets-a">0</div>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="team-row" id="ck-row-b">
+        <div class="team-row-dot" id="ck-dot-b" style="background:#94a3b8"></div>
+        <div class="team-row-name" id="ck-name-b">Thắng BK2</div>
+        <div class="team-row-score" id="ck-sets-b">0</div>
+      </div>
+      <div class="set-table-wrap">
+        <div class="set-table-title">Nhập điểm từng set · Tối đa 21 điểm</div>
+        <table class="set-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;width:38%">Đội</th>
+              <th>Set 1</th><th>Set 2</th><th>Set 3 (nếu có)</th><th>Tổng set thắng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="set-team-cell"><div class="dot" id="ck-tbl-dot-a" style="background:#94a3b8;flex-shrink:0"></div><span id="ck-tbl-a">Thắng BK1</span></div></td>
+              <td class="score-cell"><input type="number" id="ck-s1a" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
+              <td class="score-cell"><input type="number" id="ck-s2a" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
+              <td class="score-cell"><input type="number" id="ck-s3a" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
+              <td class="set-result-cell" id="ck-wina">–</td>
+            </tr>
+            <tr>
+              <td><div class="set-team-cell"><div class="dot" id="ck-tbl-dot-b" style="background:#94a3b8;flex-shrink:0"></div><span id="ck-tbl-b">Thắng BK2</span></div></td>
+              <td class="score-cell"><input type="number" id="ck-s1b" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
+              <td class="score-cell"><input type="number" id="ck-s2b" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
+              <td class="score-cell"><input type="number" id="ck-s3b" min="0" max="21" placeholder="–" oninput="calcMatch('ck')"></td>
+              <td class="set-result-cell" id="ck-winb">–</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="xoay-note">🔄 Xoay tua sau Set 1 · Xoay lại nếu vào Set 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANH HẠNG BA -->
+  <div class="phase-row" style="margin-top:20px">
+    <span class="phase-badge tb-badge">🥉 Tranh Hạng Ba</span>
+    <div class="phase-line"></div>
+    <span class="phase-note">Thắng 2 set trước · Mỗi set 21 điểm · Xoay tua sau set 1</span>
+  </div>
+
+  <div class="match-wrap single">
+    <div class="match-card tb-card">
+      <div class="match-header">
+        <span class="match-tag tb-tag">🤝 Hạng Ba · Set 21</span>
+        <span class="match-winner-display" id="tb-win-display"></span>
+      </div>
+      <div class="team-row" id="tb-row-a">
+        <div class="team-row-dot" id="tb-dot-a" style="background:#94a3b8"></div>
+        <div class="team-row-name" id="tb-name-a">Thua BK1</div>
+        <div class="team-row-score" id="tb-sets-a">0</div>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="team-row" id="tb-row-b">
+        <div class="team-row-dot" id="tb-dot-b" style="background:#94a3b8"></div>
+        <div class="team-row-name" id="tb-name-b">Thua BK2</div>
+        <div class="team-row-score" id="tb-sets-b">0</div>
+      </div>
+      <div class="set-table-wrap">
+        <div class="set-table-title">Nhập điểm từng set · Tối đa 21 điểm</div>
+        <table class="set-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;width:38%">Đội</th>
+              <th>Set 1</th><th>Set 2</th><th>Set 3 (nếu có)</th><th>Tổng set thắng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="set-team-cell"><div class="dot" id="tb-tbl-dot-a" style="background:#94a3b8;flex-shrink:0"></div><span id="tb-tbl-a">Thua BK1</span></div></td>
+              <td class="score-cell"><input type="number" id="tb-s1a" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
+              <td class="score-cell"><input type="number" id="tb-s2a" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
+              <td class="score-cell"><input type="number" id="tb-s3a" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
+              <td class="set-result-cell" id="tb-wina">–</td>
+            </tr>
+            <tr>
+              <td><div class="set-team-cell"><div class="dot" id="tb-tbl-dot-b" style="background:#94a3b8;flex-shrink:0"></div><span id="tb-tbl-b">Thua BK2</span></div></td>
+              <td class="score-cell"><input type="number" id="tb-s1b" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
+              <td class="score-cell"><input type="number" id="tb-s2b" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
+              <td class="score-cell"><input type="number" id="tb-s3b" min="0" max="21" placeholder="–" oninput="calcMatch('tb')"></td>
+              <td class="set-result-cell" id="tb-winb">–</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="xoay-note">🔄 Xoay tua sau Set 1 · Xoay lại nếu vào Set 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KẾT QUẢ CHUNG CUỘC -->
+  <div class="final-box">
+    <div class="final-title">🏆 Kết Quả Chung Cuộc</div>
+    <div class="final-row">
+      <div class="final-medal">🥇</div>
+      <div class="final-name" id="final-1">Chờ kết quả chung kết...</div>
+      <div class="final-label">NHÀ VÔ ĐỊCH</div>
+    </div>
+    <div class="final-row">
+      <div class="final-medal">🥈</div>
+      <div class="final-name" id="final-2">—</div>
+      <div class="final-label">Á QUÂN</div>
+    </div>
+    <div class="final-row">
+      <div class="final-medal">🥉</div>
+      <div class="final-name" id="final-3">Chờ kết quả hạng ba...</div>
+      <div class="final-label">HẠNG BA</div>
+    </div>
+    <div class="final-row" style="border-color:#f1f5f9">
+      <div class="final-medal" style="font-size:0.9rem">4️⃣</div>
+      <div class="final-name" id="final-4" style="color:#94a3b8">—</div>
+      <div class="final-label">HẠNG TƯ</div>
+    </div>
+  </div>
+
+  <!-- QUY ĐỊNH -->
+  <div class="rules-wrap">
+    <div class="rules-card">
+      <div class="rules-card-title">📋 Quy định Set 15 (Bán kết)</div>
+      <ul>
+        <li>Đội chạm 15 điểm trước thắng set đó</li>
+        <li>Đổi sân ngay khi một đội chạm mốc 8 điểm</li>
+        <li>Nếu hòa 14-14: cần hơn 2 điểm, tối đa 17</li>
+        <li>Thắng 2 set trước là thắng trận</li>
+        <li>Xoay tua sau Set 1, xoay lại nếu có Set 3</li>
+      </ul>
+    </div>
+    <div class="rules-card">
+      <div class="rules-card-title">📋 Quy định Set 21 (CK & Hạng Ba)</div>
+      <ul>
+        <li>Đội chạm 21 điểm trước thắng set đó</li>
+        <li>Đổi sân ngay khi một đội chạm mốc 11 điểm</li>
+        <li>Nếu hòa 20-20: cần hơn 2 điểm, tối đa 25</li>
+        <li>Thắng 2 set trước là thắng trận</li>
+        <li>Xoay tua sau Set 1, xoay lại nếu có Set 3</li>
+      </ul>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<script>
+// ── STATE ──
+const DOTS = { 1: '#3b82f6', 2: '#f59e0b', 3: '#10b981', 4: '#f43f5e' };
+// bk1: team1 vs team2 | bk2: team3 vs team4
+const BK = {
+  bk1: { a: 1, b: 2 },
+  bk2: { a: 3, b: 4 },
+};
+let winners = { bk1: null, bk2: null }; // team index (1-4)
+let losers  = { bk1: null, bk2: null };
+
+function teamName(idx) {
+  const v = document.getElementById(`tn${idx}`).value.trim();
+  return v || `Đội ${idx}`;
+}
+
+function refreshAll() {
+  // Update all name displays
+  ['bk1','bk2'].forEach(m => {
+    const {a, b} = BK[m];
+    document.getElementById(`${m}-name-a`).textContent  = teamName(a);
+    document.getElementById(`${m}-name-b`).textContent  = teamName(b);
+    document.getElementById(`${m}-tbl-a`).textContent   = teamName(a);
+    document.getElementById(`${m}-tbl-b`).textContent   = teamName(b);
+  });
+  updateFinalNames();
+  updateFinalResults();
+}
+
+function updateFinalNames() {
+  // CK
+  const ckA = winners.bk1 ? teamName(winners.bk1) : 'Thắng BK1';
+  const ckB = winners.bk2 ? teamName(winners.bk2) : 'Thắng BK2';
+  const tbA = losers.bk1  ? teamName(losers.bk1)  : 'Thua BK1';
+  const tbB = losers.bk2  ? teamName(losers.bk2)  : 'Thua BK2';
+
+  document.getElementById('ck-name-a').textContent  = ckA;
+  document.getElementById('ck-name-b').textContent  = ckB;
+  document.getElementById('ck-tbl-a').textContent   = ckA;
+  document.getElementById('ck-tbl-b').textContent   = ckB;
+  document.getElementById('tb-name-a').textContent  = tbA;
+  document.getElementById('tb-name-b').textContent  = tbB;
+  document.getElementById('tb-tbl-a').textContent   = tbA;
+  document.getElementById('tb-tbl-b').textContent   = tbB;
+
+  const ckDotA = winners.bk1 ? DOTS[winners.bk1] : '#94a3b8';
+  const ckDotB = winners.bk2 ? DOTS[winners.bk2] : '#94a3b8';
+  const tbDotA = losers.bk1  ? DOTS[losers.bk1]  : '#94a3b8';
+  const tbDotB = losers.bk2  ? DOTS[losers.bk2]  : '#94a3b8';
+
+  ['ck-dot-a','ck-tbl-dot-a'].forEach(id => document.getElementById(id).style.background = ckDotA);
+  ['ck-dot-b','ck-tbl-dot-b'].forEach(id => document.getElementById(id).style.background = ckDotB);
+  ['tb-dot-a','tb-tbl-dot-a'].forEach(id => document.getElementById(id).style.background = tbDotA);
+  ['tb-dot-b','tb-tbl-dot-b'].forEach(id => document.getElementById(id).style.background = tbDotB);
+}
+
+function calcMatch(matchId) {
+  const s1a = parseInt(document.getElementById(`${matchId}-s1a`).value);
+  const s1b = parseInt(document.getElementById(`${matchId}-s1b`).value);
+  const s2a = parseInt(document.getElementById(`${matchId}-s2a`).value);
+  const s2b = parseInt(document.getElementById(`${matchId}-s2b`).value);
+  const s3a = parseInt(document.getElementById(`${matchId}-s3a`).value);
+  const s3b = parseInt(document.getElementById(`${matchId}-s3b`).value);
+
+  let wA = 0, wB = 0;
+
+  function scoreSet(a, b) {
+    if (!isNaN(a) && !isNaN(b) && (a > 0 || b > 0)) {
+      if (a > b) wA++;
+      else if (b > a) wB++;
+    }
+  }
+  scoreSet(s1a, s1b);
+  scoreSet(s2a, s2b);
+  scoreSet(s3a, s3b);
+
+  // style inputs
+  function styleInputs(sid, a, b) {
+    const ia = document.getElementById(`${matchId}-${sid}a`);
+    const ib = document.getElementById(`${matchId}-${sid}b`);
+    if (!isNaN(a) && !isNaN(b) && (a > 0 || b > 0)) {
+      ia.className = a > b ? 'win-input' : 'lose-input';
+      ib.className = b > a ? 'win-input' : 'lose-input';
+    } else {
+      ia.className = ''; ib.className = '';
+    }
+  }
+  styleInputs('s1', s1a, s1b);
+  styleInputs('s2', s2a, s2b);
+  styleInputs('s3', s3a, s3b);
+
+  // set win counts
+  document.getElementById(`${matchId}-wina`).innerHTML = wA > 0 ? `<span class="set-win">${wA} set</span>` : '–';
+  document.getElementById(`${matchId}-winb`).innerHTML = wB > 0 ? `<span class="set-win">${wB} set</span>` : '–';
+  document.getElementById(`${matchId}-sets-a`).textContent = wA;
+  document.getElementById(`${matchId}-sets-b`).textContent = wB;
+
+  // determine match winner
+  let matchWinner = null, matchLoser = null;
+
+  const isBK = matchId === 'bk1' || matchId === 'bk2';
+  const rowA = document.getElementById(`${matchId}-row-a`);
+  const rowB = document.getElementById(`${matchId}-row-b`);
+  rowA.className = 'team-row';
+  rowB.className = 'team-row';
+
+  if (wA >= 2) { matchWinner = 'a'; matchLoser = 'b'; rowA.className += ' winner-row'; rowB.className += ' loser-row'; }
+  else if (wB >= 2) { matchWinner = 'b'; matchLoser = 'a'; rowB.className += ' winner-row'; rowA.className += ' loser-row'; }
+
+  const disp = document.getElementById(`${matchId}-win-display`);
+  if (matchWinner && isBK) {
+    const {a, b} = BK[matchId];
+    const winIdx  = matchWinner === 'a' ? a : b;
+    const loseIdx = matchLoser  === 'a' ? a : b;
+    winners[matchId] = winIdx;
+    losers[matchId]  = loseIdx;
+    disp.textContent = `✅ ${teamName(winIdx)} thắng`;
+    disp.classList.add('show');
+    updateFinalNames();
+  } else if (matchWinner && (matchId === 'ck' || matchId === 'tb')) {
+    const nameA = document.getElementById(`${matchId}-name-a`).textContent;
+    const nameB = document.getElementById(`${matchId}-name-b`).textContent;
+    const winName = matchWinner === 'a' ? nameA : nameB;
+    disp.textContent = `✅ ${winName} thắng`;
+    disp.classList.add('show');
+    updateFinalResults();
+  } else {
+    disp.classList.remove('show');
+    if (isBK) { winners[matchId] = null; losers[matchId] = null; updateFinalNames(); }
+  }
+
+  updateFinalResults();
+}
+
+function updateFinalResults() {
+  // CK
+  const ckWA = parseInt(document.getElementById('ck-sets-a').textContent) || 0;
+  const ckWB = parseInt(document.getElementById('ck-sets-b').textContent) || 0;
+  const ckNameA = document.getElementById('ck-name-a').textContent;
+  const ckNameB = document.getElementById('ck-name-b').textContent;
+
+  const tbWA = parseInt(document.getElementById('tb-sets-a').textContent) || 0;
+  const tbWB = parseInt(document.getElementById('tb-sets-b').textContent) || 0;
+  const tbNameA = document.getElementById('tb-name-a').textContent;
+  const tbNameB = document.getElementById('tb-name-b').textContent;
+
+  // 1st & 2nd
+  if (ckWA >= 2) {
+    document.getElementById('final-1').textContent = ckNameA;
+    document.getElementById('final-2').textContent = ckNameB;
+  } else if (ckWB >= 2) {
+    document.getElementById('final-1').textContent = ckNameB;
+    document.getElementById('final-2').textContent = ckNameA;
+  } else {
+    document.getElementById('final-1').textContent = 'Chờ kết quả chung kết...';
+    document.getElementById('final-2').textContent = '—';
+  }
+
+  // 3rd & 4th
+  if (tbWA >= 2) {
+    document.getElementById('final-3').textContent = tbNameA;
+    document.getElementById('final-4').textContent = tbNameB;
+  } else if (tbWB >= 2) {
+    document.getElementById('final-3').textContent = tbNameB;
+    document.getElementById('final-4').textContent = tbNameA;
+  } else {
+    document.getElementById('final-3').textContent = 'Chờ kết quả hạng ba...';
+    document.getElementById('final-4').textContent = '—';
+  }
+}
+
+refreshAll();
+</script>
+</body>
+</html>
