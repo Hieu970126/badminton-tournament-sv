@@ -683,3 +683,299 @@ body {
       <div class="final-label">HẠNG TƯ</div>
     </div>
   </div>
+
+  <div class="rules-wrap">
+    <div class="rules-card">
+      <div class="rules-card-title">📋 Quy định Set 15 (Bán kết)</div>
+      <ul>
+        <li>Đội chạm 15 điểm trước thắng set đó</li>
+        <li>Đổi sân ngay khi một đội chạm mốc 8 điểm</li>
+        <li>Nếu hòa 14-14: cần hơn 2 điểm, tối đa 17</li>
+        <li>Thắng 2 set trước là thắng trận</li>
+        <li>Xoay tua sau Set 1, xoay lại nếu có Set 3</li>
+      </ul>
+    </div>
+    <div class="rules-card">
+      <div class="rules-card-title">📋 Quy định Set 21 (CK & Hạng Ba)</div>
+      <ul>
+        <li>Đội chạm 21 điểm trước thắng set đó</li>
+        <li>Đổi sân ngay khi một đội chạm mốc 11 điểm</li>
+        <li>Nếu hòa 20-20: cần hơn 2 điểm, tối đa 25</li>
+        <li>Thắng 2 set trước là thắng trận</li>
+        <li>Xoay tua sau Set 1, xoay lại nếu có Set 3</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="btn-reset-container">
+    <button class="btn-reset-system" onclick="resetTournamentSystem()">🔄 RESET TOÀN BỘ SƠ ĐỒ THI ĐẤU</button>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+const DOTS = { 1: '#3b82f6', 2: '#f59e0b', 3: '#10b981', 4: '#f43f5e' };
+const BK = {
+  bk1: { a: 1, b: 2 },
+  bk2: { a: 3, b: 4 },
+};
+let winners = { bk1: null, bk2: null };
+let losers  = { bk1: null, bk2: null };
+
+function teamName(idx) {
+  const el = document.getElementById(`tn${idx}`);
+  const v = el ? el.value.trim() : '';
+  return v || `Đội ${idx}`;
+}
+
+function refreshAll() {
+  ['bk1','bk2'].forEach(m => {
+    const {a, b} = BK[m];
+    if(document.getElementById(`${m}-name-a`)) document.getElementById(`${m}-name-a`).textContent  = teamName(a);
+    if(document.getElementById(`${m}-name-b`)) document.getElementById(`${m}-name-b`).textContent  = teamName(b);
+    if(document.getElementById(`${m}-tbl-a`)) document.getElementById(`${m}-tbl-a`).textContent   = teamName(a);
+    if(document.getElementById(`${m}-tbl-b`)) document.getElementById(`${m}-tbl-b`).textContent   = teamName(b);
+  });
+  updateFinalNames();
+  updateFinalResults();
+}
+
+function updateFinalNames() {
+  const ckA = winners.bk1 ? teamName(winners.bk1) : 'Thắng BK1';
+  const ckB = winners.bk2 ? teamName(winners.bk2) : 'Thắng BK2';
+  const tbA = losers.bk1  ? teamName(losers.bk1)  : 'Thua BK1';
+  const tbB = losers.bk2  ? teamName(losers.bk2)  : 'Thua BK2';
+
+  if(document.getElementById('ck-name-a')) document.getElementById('ck-name-a').textContent  = ckA;
+  if(document.getElementById('ck-name-b')) document.getElementById('ck-name-b').textContent  = ckB;
+  if(document.getElementById('ck-tbl-a')) document.getElementById('ck-tbl-a').textContent   = ckA;
+  if(document.getElementById('ck-tbl-b')) document.getElementById('ck-tbl-b').textContent   = ckB;
+  if(document.getElementById('tb-name-a')) document.getElementById('tb-name-a').textContent  = tbA;
+  if(document.getElementById('tb-name-b')) document.getElementById('tb-name-b').textContent  = tbB;
+  if(document.getElementById('tb-tbl-a')) document.getElementById('tb-tbl-a').textContent   = tbA;
+  if(document.getElementById('tb-tbl-b')) document.getElementById('tb-tbl-b').textContent   = tbB;
+
+  const ckDotA = winners.bk1 ? DOTS[winners.bk1] : '#94a3b8';
+  const ckDotB = winners.bk2 ? DOTS[winners.bk2] : '#94a3b8';
+  const tbDotA = losers.bk1  ? DOTS[losers.bk1]  : '#94a3b8';
+  const tbDotB = losers.bk2  ? DOTS[losers.bk2]  : '#94a3b8';
+
+  ['ck-dot-a','ck-tbl-dot-a'].forEach(id => { const el = document.getElementById(id); if(el) el.style.background = ckDotA; });
+  ['ck-dot-b','ck-tbl-dot-b'].forEach(id => { const el = document.getElementById(id); if(el) el.style.background = ckDotB; });
+  ['tb-dot-a','tb-tbl-dot-a'].forEach(id => { const el = document.getElementById(id); if(el) el.style.background = tbDotA; });
+  ['tb-dot-b','tb-tbl-dot-b'].forEach(id => { const el = document.getElementById(id); if(el) el.style.background = tbDotB; });
+}
+
+function calcMatch(matchId) {
+  const s1a = parseInt(document.getElementById(`${matchId}-s1a`).value);
+  const s1b = parseInt(document.getElementById(`${matchId}-s1b`).value);
+  const s2a = parseInt(document.getElementById(`${matchId}-s2a`).value);
+  const s2b = parseInt(document.getElementById(`${matchId}-s2b`).value);
+  const s3a = parseInt(document.getElementById(`${matchId}-s3a`).value);
+  const s3b = parseInt(document.getElementById(`${matchId}-s3b`).value);
+
+  let wA = 0, wB = 0;
+
+  function scoreSet(a, b) {
+    if (!isNaN(a) && !isNaN(b) && (a > 0 || b > 0)) {
+      if (a > b) wA++;
+      else if (b > a) wB++;
+    }
+  }
+  scoreSet(s1a, s1b);
+  scoreSet(s2a, s2b);
+  scoreSet(s3a, s3b);
+
+  function styleInputs(sid, a, b) {
+    const ia = document.getElementById(`${matchId}-${sid}a`);
+    const ib = document.getElementById(`${matchId}-${sid}b`);
+    if(ia && ib) {
+      if (!isNaN(a) && !isNaN(b) && (a > 0 || b > 0)) {
+        ia.className = a > b ? 'win-input' : 'lose-input';
+        ib.className = b > a ? 'win-input' : 'lose-input';
+      } else {
+        ia.className = ''; ib.className = '';
+      }
+    }
+  }
+  styleInputs('s1', s1a, s1b);
+  styleInputs('s2', s2a, s2b);
+  styleInputs('s3', s3a, s3b);
+
+  if(document.getElementById(`${matchId}-wina`)) document.getElementById(`${matchId}-wina`).innerHTML = wA > 0 ? `<span class="set-win">${wA} set</span>` : '–';
+  if(document.getElementById(`${matchId}-winb`)) document.getElementById(`${matchId}-winb`).innerHTML = wB > 0 ? `<span class="set-win">${wB} set</span>` : '–';
+  if(document.getElementById(`${matchId}-sets-a`)) document.getElementById(`${matchId}-sets-a`).textContent = wA;
+  if(document.getElementById(`${matchId}-sets-b`)) document.getElementById(`${matchId}-sets-b`).textContent = wB;
+
+  let matchWinner = null, matchLoser = null;
+  const isBK = matchId === 'bk1' || matchId === 'bk2';
+  const rowA = document.getElementById(`${matchId}-row-a`);
+  const rowB = document.getElementById(`${matchId}-row-b`);
+  
+  if(rowA) rowA.className = 'team-row';
+  if(rowB) rowB.className = 'team-row';
+
+  if (wA >= 2) { 
+    matchWinner = 'a'; matchLoser = 'b'; 
+    if(rowA) rowA.className += ' winner-row'; 
+    if(rowB) rowB.className += ' loser-row'; 
+  } else if (wB >= 2) { 
+    matchWinner = 'b'; matchLoser = 'a'; 
+    if(rowB) rowB.className += ' winner-row'; 
+    if(rowA) rowA.className += ' loser-row'; 
+  }
+
+  const disp = document.getElementById(`${matchId}-win-display`);
+  if (matchWinner && isBK) {
+    const {a, b} = BK[matchId];
+    const winIdx  = matchWinner === 'a' ? a : b;
+    const loseIdx = matchLoser  === 'a' ? a : b;
+    winners[matchId] = winIdx;
+    losers[matchId]  = loseIdx;
+    if(disp) {
+      disp.textContent = `✅ ${teamName(winIdx)} thắng`;
+      disp.classList.add('show');
+    }
+    updateFinalNames();
+  } else if (matchWinner && (matchId === 'ck' || matchId === 'tb')) {
+    const nameA = document.getElementById(`${matchId}-name-a`).textContent;
+    const nameB = document.getElementById(`${matchId}-name-b`).textContent;
+    const winName = matchWinner === 'a' ? nameA : nameB;
+    if(disp) {
+      disp.textContent = `✅ ${winName} thắng`;
+      disp.classList.add('show');
+    }
+  } else {
+    if(disp) disp.classList.remove('show');
+    if (isBK) { winners[matchId] = null; losers[matchId] = null; updateFinalNames(); }
+  }
+
+  updateFinalResults();
+}
+
+function updateFinalResults() {
+  const ckWA = parseInt(document.getElementById('ck-sets-a').textContent) || 0;
+  const ckWB = parseInt(document.getElementById('ck-sets-b').textContent) || 0;
+  const ckNameA = document.getElementById('ck-name-a').textContent;
+  const ckNameB = document.getElementById('ck-name-b').textContent;
+
+  const tbWA = parseInt(document.getElementById('tb-sets-a').textContent) || 0;
+  const tbWB = parseInt(document.getElementById('tb-sets-b').textContent) || 0;
+  const tbNameA = document.getElementById('tb-name-a').textContent;
+  const tbNameB = document.getElementById('tb-name-b').textContent;
+
+  if (ckWA >= 2) {
+    document.getElementById('final-1').textContent = ckNameA;
+    document.getElementById('final-2').textContent = ckNameB;
+  } else if (ckWB >= 2) {
+    document.getElementById('final-1').textContent = ckNameB;
+    document.getElementById('final-2').textContent = ckNameA;
+  } else {
+    document.getElementById('final-1').textContent = 'Chờ kết quả chung kết...';
+    document.getElementById('final-2').textContent = '—';
+  }
+
+  if (tbWA >= 2) {
+    document.getElementById('final-3').textContent = tbNameA;
+    document.getElementById('final-4').textContent = tbNameB;
+  } else if (tbWB >= 2) {
+    document.getElementById('final-3').textContent = tbNameB;
+    document.getElementById('final-4').textContent = tbNameA;
+  } else {
+    document.getElementById('final-3').textContent = 'Chờ kết quả hạng ba...';
+    document.getElementById('final-4').textContent = '—';
+  }
+}
+
+// ── LOCAL STORAGE ENGINE ──
+function saveState() {
+  const state = {
+    names: {
+      tn1: document.getElementById('tn1').value,
+      tn2: document.getElementById('tn2').value,
+      tn3: document.getElementById('tn3').value,
+      tn4: document.getElementById('tn4').value
+    },
+    scores: {}
+  };
+  
+  const fields = [
+    'bk1-s1a', 'bk1-s1b', 'bk1-s2a', 'bk1-s2b', 'bk1-s3a', 'bk1-s3b',
+    'bk2-s1a', 'bk2-s1b', 'bk2-s2a', 'bk2-s2b', 'bk2-s3a', 'bk2-s3b',
+    'ck-s1a', 'ck-s1b', 'ck-s2a', 'ck-s2b', 'ck-s3a', 'ck-s3b',
+    'tb-s1a', 'tb-s1b', 'tb-s2a', 'tb-s2b', 'tb-s3a', 'tb-s3b'
+  ];
+  
+  fields.forEach(f => {
+    const el = document.getElementById(f);
+    if(el) state.scores[f] = el.value;
+  });
+
+  localStorage.setItem('badminton_bracket_state', JSON.stringify(state));
+}
+
+function loadState() {
+  const saved = localStorage.getItem('badminton_bracket_state');
+  if (!saved) return;
+
+  try {
+    const state = JSON.parse(saved);
+    if (state.names) {
+      for (let key in state.names) {
+        const el = document.getElementById(key);
+        if(el) el.value = state.names[key];
+      }
+    }
+    
+    refreshAll(); // Đọc tên đội trước khi render điểm
+
+    if (state.scores) {
+      for (let key in state.scores) {
+        const el = document.getElementById(key);
+        if(el) el.value = state.scores[key];
+      }
+    }
+    
+    // Trigger tính toán lại giao diện cho cả 4 trận
+    ['bk1', 'bk2', 'ck', 'tb'].forEach(m => calcMatch(m));
+    
+  } catch (e) {
+    console.error("Lỗi phục hồi dữ liệu cũ:", e);
+  }
+}
+
+function resetTournamentSystem() {
+  if (confirm("⚠️ BẠN CÓ CHẮC CHẮN MUỐN RESET SƠ ĐỒ?\nToàn bộ tên đội và điểm số của các trận nhánh đấu loại trực tiếp này sẽ bị xóa sạch.")) {
+    localStorage.removeItem('badminton_bracket_state');
+    
+    // Clear inputs tên
+    ['tn1','tn2','tn3','tn4'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    
+    // Clear các ô nhập điểm
+    const fields = [
+      'bk1-s1a', 'bk1-s1b', 'bk1-s2a', 'bk1-s2b', 'bk1-s3a', 'bk1-s3b',
+      'bk2-s1a', 'bk2-s1b', 'bk2-s2a', 'bk2-s2b', 'bk2-s3a', 'bk2-s3b',
+      'ck-s1a', 'ck-s1b', 'ck-s2a', 'ck-s2b', 'ck-s3a', 'ck-s3b',
+      'tb-s1a', 'tb-s1b', 'tb-s2a', 'tb-s2b', 'tb-s3a', 'tb-s3b'
+    ];
+    fields.forEach(f => { const el = document.getElementById(f); if(el) el.value = ''; });
+    
+    winners = { bk1: null, bk2: null };
+    losers  = { bk1: null, bk2: null };
+    
+    refreshAll();
+    ['bk1', 'bk2', 'ck', 'tb'].forEach(m => calcMatch(m));
+  }
+}
+
+// Chạy khởi tạo khi mở trang
+window.onload = function() {
+  loadState();
+  if(!localStorage.getItem('badminton_bracket_state')) {
+    refreshAll();
+  }
+};
+</script>
+</body>
+</html>
