@@ -1,348 +1,383 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giải Cầu Lông Đồng Đội 10 Người - Bản Chuẩn Khắc Phục Lỗi</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; color: #333; padding: 15px; margin: 0; }
-        .container { max-width: 840px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #1e3a8a; margin-bottom: 5px; font-size: 24px; text-transform: uppercase; }
-        h2 { color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; font-size: 18px; margin-top: 25px; }
-        h3 { color: #1e3a8a; font-size: 15px; margin-top: 15px; margin-bottom: 8px; }
-        
-        /* Bảng điều khiển bấm điểm chuyên nghiệp */
-        .scoreboard-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #0f172a; padding: 20px; border-radius: 10px; margin-top: 15px; text-align: center; color: white; }
-        .score-btn { width: 100%; padding: 15px; font-size: 20px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
-        .btn-team1 { background-color: #ef4444; }
-        .btn-team1:hover { background-color: #dc2626; }
-        .btn-team2 { background-color: #10b981; }
-        .btn-team2:hover { background-color: #059669; }
-        .display-total { font-size: 48px; font-weight: bold; font-family: monospace; margin: 5px 0; color: #f8fafc; }
-        .current-match-info { grid-column: 1 / span 2; background: #1e293b; padding: 8px; border-radius: 6px; font-size: 14px; color: #38bdf8; font-weight: bold; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giải Cầu Lông Đồng Đội</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #f4f6f9; color: #333; padding: 15px; margin: 0; }
+    .container { max-width: 860px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #1e3a8a; margin-bottom: 5px; font-size: 22px; text-transform: uppercase; }
+    h2 { color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; font-size: 17px; margin-top: 25px; }
 
-        .setup-section { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .team-box { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .team-box h3 { margin: 0 0 10px 0; color: #1e40af; font-size: 16px; }
-        .input-group { margin-bottom: 8px; display: flex; align-items: center; }
-        .input-group label { width: 70px; font-weight: bold; font-size: 14px; }
-        .input-group input { flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; }
-        .btn-apply { display: block; width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; margin-top: 10px; }
-        .btn-apply:hover { background: #1d4ed8; }
-        
-        .table-wrapper { overflow-x: auto; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
-        th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: center; }
-        th { background-color: #1e3a8a; color: white; }
-        tr.active-row { background-color: #fef08a !important; font-weight: bold; }
-        tr:nth-child(even) { background-color: #f8fafc; }
-        .target-score { font-weight: bold; color: #dc2626; background: #fef2f2; border-radius: 4px; padding: 2px 6px; }
-        .score-input { width: 50px; padding: 5px; text-align: center; font-weight: bold; font-size: 14px; border: 1px solid #94a3b8; border-radius: 4px; background: #fff; }
-        .total-row { background-color: #eff6ff !important; font-weight: bold; font-size: 16px; color: #1e3a8a; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; min-width: 95px; }
-        .badge-namnu { background-color: #ec4899; }
-        .badge-nam { background-color: #3b82f6; }
-        
-        .btn-reset { display: block; width: 100%; padding: 12px; background: #64748b; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; text-align: center; margin-top: 20px; }
-        .btn-reset:hover { background: #475569; }
-        
-        .rule-section { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-top: 15px; font-size: 14px; line-height: 1.6; }
-        .rule-section ul, .rule-section ol { margin-top: 5px; padding-left: 20px; }
-        .rule-section li { margin-bottom: 6px; text-align: justify; }
-        .highlight-text { font-weight: bold; color: #b91c1c; }
-        .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        @media (max-width: 600px) { .rule-grid { grid-template-columns: 1fr; } }
-    </style>
+    /* ── TOURNAMENT MANAGER ── */
+    .tm-box { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
+    .tm-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .tm-row:last-child { margin-bottom: 0; border-top: 1px dashed #cbd5e1; padding-top: 10px; }
+    .tm-label { font-weight: 700; font-size: 0.85rem; min-width: 100px; }
+    .tm-select { flex: 1; min-width: 160px; padding: 6px 10px; border: 1px solid #94a3b8; border-radius: 6px; font-size: 0.85rem; }
+    .tm-input { flex: 1; min-width: 160px; padding: 6px 10px; border: 1px solid #94a3b8; border-radius: 6px; font-size: 0.85rem; }
+    .btn-create { padding: 6px 14px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .btn-create:hover { background: #1d4ed8; }
+    .btn-delete-t { padding: 6px 14px; background: #ef4444; color: white; border: none; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .btn-delete-t:hover { background: #dc2626; }
+
+    /* ── SCOREBOARD ── */
+    .scoreboard-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #0f172a; padding: 20px; border-radius: 10px; margin-top: 15px; text-align: center; color: white; }
+    .score-btn { width: 100%; padding: 15px; font-size: 20px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+    .btn-team1 { background: #ef4444; } .btn-team1:hover { background: #dc2626; }
+    .btn-team2 { background: #10b981; } .btn-team2:hover { background: #059669; }
+    .display-total { font-size: 48px; font-weight: bold; font-family: monospace; margin: 5px 0; color: #f8fafc; }
+    .current-match-info { grid-column: 1 / span 2; background: #1e293b; padding: 8px; border-radius: 6px; font-size: 14px; color: #38bdf8; font-weight: bold; }
+
+    /* ── SETUP ── */
+    .setup-section { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    .team-box { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .team-box h3 { margin: 0 0 10px 0; color: #1e40af; font-size: 16px; }
+    .input-group { margin-bottom: 8px; display: flex; align-items: center; }
+    .input-group label { width: 70px; font-weight: bold; font-size: 14px; }
+    .input-group input { flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; }
+    .btn-apply { display: block; width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .btn-apply:hover { background: #1d4ed8; }
+
+    /* ── TABLE ── */
+    .table-wrapper { overflow-x: auto; margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
+    th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: center; }
+    th { background: #1e3a8a; color: white; }
+    tr.active-row { background: #fef08a !important; font-weight: bold; }
+    tr:nth-child(even) { background: #f8fafc; }
+    .target-score { font-weight: bold; color: #dc2626; background: #fef2f2; border-radius: 4px; padding: 2px 6px; }
+    .score-input { width: 50px; padding: 5px; text-align: center; font-weight: bold; font-size: 14px; border: 1px solid #94a3b8; border-radius: 4px; }
+    .total-row { background: #eff6ff !important; font-weight: bold; font-size: 16px; color: #1e3a8a; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; min-width: 95px; }
+    .badge-namnu { background: #ec4899; }
+    .badge-nam { background: #3b82f6; }
+
+    .btn-reset { display: block; width: 100%; padding: 12px; background: #64748b; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    .btn-reset:hover { background: #475569; }
+    .sync-status { text-align: right; font-size: 0.72rem; color: #94a3b8; margin-top: 6px; }
+  </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>🏆 GIẢI CẦU LÔNG ĐỒNG ĐỘI</h1>
-    <p style="text-align: center; margin: 0 0 20px 0; color: #64748b; font-size: 14px;">Mỗi người đánh đúng 4 trận - Xen kẽ Đôi Nam / Nam Nữ</p>
+  <h1>🏆 GIẢI CẦU LÔNG ĐỒNG ĐỘI</h1>
+  <p style="text-align:center;margin:0 0 16px;color:#64748b;font-size:14px;">Mỗi người đánh đúng 4 trận · Xen kẽ Đôi Nam / Nam Nữ</p>
 
-    <h2>1. NHẬP TÊN THÀNH VIÊN TRÊN SÂN</h2>
-    <div class="setup-section">
-        <div class="team-box">
-            <h3>ĐỘI 1</h3>
-            <div class="input-group"><label>Nữ 1:</label><input type="text" id="d1_n1" value="An" onchange="saveAllData()"></div>
-            <div class="input-group"><label>Nam 1:</label><input type="text" id="d1_m1" value="Bình" onchange="saveAllData()"></div>
-            <div class="input-group"><label>Nam 2:</label><input type="text" id="d1_m2" value="Cường" onchange="saveAllData()"></div>
-            <div class="input-group"><label>Nam 3:</label><input type="text" id="d1_m3" value="Dũng" onchange="saveAllData()"></div>
-            <div class="input-group"><label>Nam 4:</label><input type="text" id="d1_m4" value="Đông" onchange="saveAllData()"></div>
-        </div>
-        <div class="team-box">
-            <h3>ĐỘI 2</h3>
-            <div class="input-group"><label>Nữ 2:</label><input type="text" id="d2_n2" value="Vân" onchange="saveAllData()"></div>
-            <div class="input-group"><label>Nữ 3:</label><input type="text" id="d2_n3" value="Xuân" onchange="saveAllData()"></div>
-            <div class="input-group"><label>Nam 1:</label><input type="text" id="d2_m1" value="Hải" onchange="saveAllData()"></div>
-            <div class="input-group"><label>Nam 2:</label><input type="text" id="d2_m2" value="Quân" onchange="saveAllData()"></div>
-            <div class="input-group"><label>Nam 3:</label><input type="text" id="d2_m3" value="Minh" onchange="saveAllData()"></div>
-        </div>
+  <!-- TOURNAMENT MANAGER -->
+  <div class="tm-box">
+    <div class="tm-row">
+      <span class="tm-label">🏆 Chọn giải:</span>
+      <select class="tm-select" id="dd_select" onchange="ddSwitchTournament(this.value)"><option>Đang tải...</option></select>
+      <button class="btn-delete-t" onclick="ddDeleteTournament()">❌ Xóa giải</button>
     </div>
-    <button class="btn-apply" onclick="updateNames(); saveAllData();">Cập Nhật Tên Vào Lịch Đấu</button>
-
-    <h2>2. BẢNG BẤM ĐIỂM TRÊN SÂN (SCOREBOARD)</h2>
-    <div class="scoreboard-panel">
-        <div class="current-match-info" id="live_match_status">Đang tải trận đấu...</div>
-        <div>
-            <div style="color: #fca5a5; font-weight: bold;">TỔNG ĐIỂM ĐỘI 1</div>
-            <div class="display-total" id="live_total_1">0</div>
-            <button class="score-btn btn-team1" onclick="pressScore(1)">+1 ĐỘI 1</button>
-        </div>
-        <div>
-            <div style="color: #6ee7b7; font-weight: bold;">TỔNG ĐIỂM ĐỘI 2</div>
-            <div class="display-total" id="live_total_2">0</div>
-            <button class="score-btn btn-team2" onclick="pressScore(2)">+1 ĐỘI 2</button>
-        </div>
+    <div class="tm-row">
+      <span class="tm-label">➕ Tạo giải:</span>
+      <input class="tm-input" id="dd_new_name" placeholder="Tên giải đấu mới...">
+      <button class="btn-create" onclick="ddCreateTournament()">Tạo & Thiết Lập</button>
     </div>
+  </div>
+  <div class="sync-status" id="dd_sync_status">⏳ Đang kết nối...</div>
 
-    <h2>3. LỊCH THI ĐẤU XEN KẼ & CHI TIẾT ĐIỂM</h2>
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Trận</th>
-                    <th>Thể thức</th>
-                    <th>Đội 1 vào sân</th>
-                    <th>Đội 2 vào sân</th>
-                    <th>Mốc Đích</th>
-                    <th>Điểm Đ1</th>
-                    <th>Điểm Đ2</th>
-                </tr>
-            </thead>
-            <tbody>
-                <script>
-                    const badges = [
-                        'badge-namnu">Đôi Nam Nữ', 'badge-nam">Đôi Nam Thuần',
-                        'badge-namnu">Đôi Nam Nữ', 'badge-nam">Đôi Nam Thuần',
-                        'badge-namnu">Đôi Nam Nữ', 'badge-nam">Đôi Nam Thuần',
-                        'badge-namnu">Đôi Nam Nữ', 'badge-nam">Đôi Nam Thuần',
-                        'badge-namnu">Đôi Nam Nữ', 'badge-nam">CHUNG KẾT NAM'
-                    ];
-                    for(let i=1; i<=10; i++) {
-                        document.write(`
-                            <tr id="row_${i}">
-                                <td><b>${i}</b></td>
-                                <td><span class="badge ${badges[i-1]}</span></td>
-                                <td id="t${i}_d1"></td>
-                                <td id="t${i}_d2"></td>
-                                <td><span class="target-score">${i*21}</span></td>
-                                <td><input type="number" class="score-input" id="s${i}_1" value="0" oninput="calculateTotal(); saveAllData();"></td>
-                                <td><input type="number" class="score-input" id="s${i}_2" value="0" oninput="calculateTotal(); saveAllData();"></td>
-                            </tr>
-                        `);
-                    }
-                </script>
-                <tr class="total-row">
-                    <td colspan="5">TỔNG ĐIỂM HIỆN TẠI (Mục tiêu 210)</td>
-                    <td id="total_1">0</td>
-                    <td id="total_2">0</td>
-                </tr>
-            </tbody>
-        </table>
+  <h2>1. NHẬP TÊN THÀNH VIÊN TRÊN SÂN</h2>
+  <div class="setup-section">
+    <div class="team-box">
+      <h3>ĐỘI 1</h3>
+      <div class="input-group"><label>Nữ 1:</label><input type="text" id="d1_n1" value="An" oninput="ddSave()"></div>
+      <div class="input-group"><label>Nam 1:</label><input type="text" id="d1_m1" value="Bình" oninput="ddSave()"></div>
+      <div class="input-group"><label>Nam 2:</label><input type="text" id="d1_m2" value="Cường" oninput="ddSave()"></div>
+      <div class="input-group"><label>Nam 3:</label><input type="text" id="d1_m3" value="Dũng" oninput="ddSave()"></div>
+      <div class="input-group"><label>Nam 4:</label><input type="text" id="d1_m4" value="Đông" oninput="ddSave()"></div>
     </div>
-
-    <button class="btn-reset" onclick="resetTournament()">🔄 RESET TOÀN BỘ GIẢI ĐẤU (XÓA ĐIỂM VỀ 0)</button>
-
-    <h2>4. ĐIỀU LỆ ĐẤU & LƯU Ý HỆ THỐNG</h2>
-    <div class="rule-section">
-        <h3>A. Thể thức Điểm Tích Lũy Liên Tục (Cumulative Running Score)</h3>
-        <ul>
-            <li>Toàn bộ giải là một cuộc đua điểm số kéo dài liên tục gối đầu từ trận 1 đến trận 10.</li>
-            <li><span class="highlight-text">Mốc điểm dừng:</span> Trận 1 dừng ở mốc 21 $\rightarrow$ Trận 2 mốc 42 $\rightarrow$ ... $\rightarrow$ Trận 10 dừng ở mốc 210. Đội nào chạm mốc 210 trước sẽ thắng chung cuộc toàn giải.</li>
-            <li>Khi chạm mốc đích, màn hình sẽ tạm khóa bấm điểm và hiện popup thông báo. Vui lòng đổi cặp VĐV rồi nhấn <span class="highlight-text">"OK"</span> để mở khóa hệ thống tự chuyển sang trận tiếp theo.</li>
-        </ul>
-
-        <h3>B. Lưu ý hệ thống</h3>
-        <ul>
-            <li>Dữ liệu giải đấu <strong>tự động lưu lại trên trình duyệt của máy này</strong>. Bạn có thể F5, tắt trình duyệt, mở lại vẫn sẽ giữ nguyên số điểm đang đánh dở.</li>
-            <li>Nếu đổi điện thoại/thiết bị khác để tính điểm, dữ liệu cũ sẽ không đi theo (vì lưu nội bộ thiết bị).</li>
-        </ul>
+    <div class="team-box">
+      <h3>ĐỘI 2</h3>
+      <div class="input-group"><label>Nữ 2:</label><input type="text" id="d2_n2" value="Vân" oninput="ddSave()"></div>
+      <div class="input-group"><label>Nữ 3:</label><input type="text" id="d2_n3" value="Xuân" oninput="ddSave()"></div>
+      <div class="input-group"><label>Nam 1:</label><input type="text" id="d2_m1" value="Hải" oninput="ddSave()"></div>
+      <div class="input-group"><label>Nam 2:</label><input type="text" id="d2_m2" value="Quân" oninput="ddSave()"></div>
+      <div class="input-group"><label>Nam 3:</label><input type="text" id="d2_m3" value="Minh" oninput="ddSave()"></div>
     </div>
+  </div>
+  <button class="btn-apply" onclick="updateNames(); ddSave();">Cập Nhật Tên Vào Lịch Đấu</button>
+
+  <h2>2. BẢNG BẤM ĐIỂM TRÊN SÂN</h2>
+  <div class="scoreboard-panel">
+    <div class="current-match-info" id="live_match_status">Đang tải trận đấu...</div>
+    <div>
+      <div style="color:#fca5a5;font-weight:bold;">TỔNG ĐIỂM ĐỘI 1</div>
+      <div class="display-total" id="live_total_1">0</div>
+      <button class="score-btn btn-team1" onclick="pressScore(1)">+1 ĐỘI 1</button>
+    </div>
+    <div>
+      <div style="color:#6ee7b7;font-weight:bold;">TỔNG ĐIỂM ĐỘI 2</div>
+      <div class="display-total" id="live_total_2">0</div>
+      <button class="score-btn btn-team2" onclick="pressScore(2)">+1 ĐỘI 2</button>
+    </div>
+  </div>
+
+  <h2>3. LỊCH THI ĐẤU & CHI TIẾT ĐIỂM</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Trận</th><th>Thể thức</th><th>Đội 1 vào sân</th><th>Đội 2 vào sân</th>
+          <th>Mốc Đích</th><th>Điểm Đ1</th><th>Điểm Đ2</th>
+        </tr>
+      </thead>
+      <tbody id="match_tbody"></tbody>
+    </table>
+  </div>
+
+  <button class="btn-reset" onclick="ddResetScores()">🔄 RESET ĐIỂM VỀ 0 (GIỮ TÊN)</button>
 </div>
 
 <script>
-    let currentMatch = 1;
-    let isMatchLocked = false;
+// ── FIREBASE CONFIG ──
+const ddFirebaseConfig = {
+  apiKey: "AIzaSyBuJcSMGQmVRQg8RZHMT4bR_FHQJQ_E_sA",
+  authDomain: "giai-cau-long-san-vuon.firebaseapp.com",
+  databaseURL: "https://giai-cau-long-san-vuon-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "giai-cau-long-san-vuon",
+  storageBucket: "giai-cau-long-san-vuon.appspot.com",
+  messagingSenderId: "490739341912",
+  appId: "1:490739341912:web:97c558dc2fa9ebb0bd882d"
+};
+if (!firebase.apps.length) { firebase.initializeApp(ddFirebaseConfig); }
+else { firebase.app(); }
+var ddDb = firebase.database();
+var ddCurrentId = null;
+var ddRef = null;
+var ddAdminPass = "";
+var ddCurrentMatch = 1;
+var ddIsMatchLocked = false;
+var ddTournamentsList = {};
+var ddListener = null;
 
-    // Hàm đọc giá trị an toàn, nếu trống thì trả về dấu "..." tạm thời để tránh treo code
-    function getPlayerName(id, defaultName) {
-        const el = document.getElementById(id);
-        return (el && el.value.trim()) ? el.value.trim() : defaultName;
+// Fetch admin password
+ddDb.ref('admin_config/super_admin_password').on('value', snap => {
+  ddAdminPass = snap.val() ? snap.val().toString().trim() : "";
+});
+
+// ── BUILD TABLE ──
+(function buildTable() {
+  const badges = [
+    'badge-namnu">Đôi Nam Nữ','badge-nam">Đôi Nam Thuần',
+    'badge-namnu">Đôi Nam Nữ','badge-nam">Đôi Nam Thuần',
+    'badge-namnu">Đôi Nam Nữ','badge-nam">Đôi Nam Thuần',
+    'badge-namnu">Đôi Nam Nữ','badge-nam">Đôi Nam Thuần',
+    'badge-namnu">Đôi Nam Nữ','badge-nam">CHUNG KẾT NAM'
+  ];
+  const tbody = document.getElementById('match_tbody');
+  let html = '';
+  for (let i = 1; i <= 10; i++) {
+    html += `<tr id="row_${i}">
+      <td><b>${i}</b></td>
+      <td><span class="badge ${badges[i-1]}</span></td>
+      <td id="t${i}_d1"></td><td id="t${i}_d2"></td>
+      <td><span class="target-score">${i*21}</span></td>
+      <td><input type="number" class="score-input" id="s${i}_1" value="0" oninput="calculateTotal();ddSave();"></td>
+      <td><input type="number" class="score-input" id="s${i}_2" value="0" oninput="calculateTotal();ddSave();"></td>
+    </tr>`;
+  }
+  html += `<tr class="total-row">
+    <td colspan="5">TỔNG ĐIỂM (Mục tiêu 210)</td>
+    <td id="total_1">0</td><td id="total_2">0</td>
+  </tr>`;
+  tbody.innerHTML = html;
+})();
+
+// ── TOURNAMENT LIST ──
+ddDb.ref('dongdoi_list').on('value', snap => {
+  ddTournamentsList = snap.val() || {};
+  const sel = document.getElementById('dd_select');
+  const prev = ddCurrentId;
+  sel.innerHTML = '';
+  const keys = Object.keys(ddTournamentsList);
+  if (keys.length === 0) {
+    sel.innerHTML = '<option value="">-- Chưa có giải --</option>';
+    document.getElementById('dd_sync_status').textContent = '⚠️ Chưa có giải nào';
+    return;
+  }
+  keys.forEach(k => {
+    const opt = document.createElement('option');
+    opt.value = k;
+    opt.textContent = ddTournamentsList[k].name || k;
+    sel.appendChild(opt);
+  });
+  if (prev && ddTournamentsList[prev]) {
+    sel.value = prev;
+  } else {
+    sel.value = keys[0];
+    ddSwitchTournament(keys[0]);
+  }
+});
+
+function ddSwitchTournament(id) {
+  if (!id) return;
+  ddCurrentId = id;
+  if (ddListener) ddRef && ddRef.off('value', ddListener);
+  ddRef = ddDb.ref('dongdoi_data/' + id);
+  ddListener = ddRef.on('value', snap => {
+    const data = snap.val() || {};
+    ddCurrentMatch = data.currentMatch || 1;
+    ddIsMatchLocked = data.isMatchLocked || false;
+    if (data.names) {
+      Object.keys(data.names).forEach(k => {
+        const el = document.getElementById(k);
+        if (el) el.value = data.names[k];
+      });
     }
-
-    // Hàm cập nhật tên hiển thị lên bảng đấu một cách an toàn chống crash
-    function updateNames() {
-        const d1 = {
-            n1: getPlayerName('d1_n1', 'Nữ 1 (Đ1)'),
-            m1: getPlayerName('d1_m1', 'Nam 1 (Đ1)'),
-            m2: getPlayerName('d1_m2', 'Nam 2 (Đ1)'),
-            m3: getPlayerName('d1_m3', 'Nam 3 (Đ1)'),
-            m4: getPlayerName('d1_m4', 'Nam 4 (Đ1)')
-        };
-        const d2 = {
-            n2: getPlayerName('d2_n2', 'Nữ 1 (Đ2)'),
-            n3: getPlayerName('d2_n3', 'Nữ 2 (Đ2)'),
-            m1: getPlayerName('d2_m1', 'Nam 1 (Đ2)'),
-            m2: getPlayerName('d2_m2', 'Nam 2 (Đ2)'),
-            m3: getPlayerName('d2_m3', 'Nam 3 (Đ2)')
-        };
-
-        if(document.getElementById('t1_d1')) document.getElementById('t1_d1').innerHTML = d1.n1 + " + " + d1.m1;
-        if(document.getElementById('t1_d2')) document.getElementById('t1_d2').innerHTML = d2.n2 + " + " + d2.m1;
-        if(document.getElementById('t2_d1')) document.getElementById('t2_d1').innerHTML = d1.m2 + " + " + d1.m3;
-        if(document.getElementById('t2_d2')) document.getElementById('t2_d2').innerHTML = d2.m2 + " + " + d2.m3;
-        if(document.getElementById('t3_d1')) document.getElementById('t3_d1').innerHTML = d1.n1 + " + " + d1.m4;
-        if(document.getElementById('t3_d2')) document.getElementById('t3_d2').innerHTML = d2.n3 + " + " + d2.m1;
-        if(document.getElementById('t4_d1')) document.getElementById('t4_d1').innerHTML = d1.m1 + " + " + d1.m2;
-        if(document.getElementById('t4_d2')) document.getElementById('t4_d2').innerHTML = d2.m2 + " + " + d2.m3;
-        if(document.getElementById('t5_d1')) document.getElementById('t5_d1').innerHTML = d1.n1 + " + " + d1.m3;
-        if(document.getElementById('t5_d2')) document.getElementById('t5_d2').innerHTML = d2.n2 + " + " + d2.m2;
-        if(document.getElementById('t6_d1')) document.getElementById('t6_d1').innerHTML = d1.m1 + " + " + d1.m4;
-        if(document.getElementById('t6_d2')) document.getElementById('t6_d2').innerHTML = d2.m1 + " + " + d2.m3;
-        if(document.getElementById('t7_d1')) document.getElementById('t7_d1').innerHTML = d1.n1 + " + " + d1.m2;
-        if(document.getElementById('t7_d2')) document.getElementById('t7_d2').innerHTML = d2.n3 + " + " + d2.m2;
-        if(document.getElementById('t8_d1')) document.getElementById('t8_d1').innerHTML = d1.m1 + " + " + d1.m3;
-        if(document.getElementById('t8_d2')) document.getElementById('t8_d2').innerHTML = d2.m1 + " + " + d2.m2;
-        if(document.getElementById('t9_d1')) document.getElementById('t9_d1').innerHTML = d1.m4 + " + " + d1.m2;
-        if(document.getElementById('t9_d2')) document.getElementById('t9_d2').innerHTML = d2.n2 + " + " + d2.m3;
-        if(document.getElementById('t10_d1')) document.getElementById('t10_d1').innerHTML = d1.m3 + " + " + d1.m4;
-        if(document.getElementById('t10_d2')) document.getElementById('t10_d2').innerHTML = d2.n3 + " + " + d2.m1;
-        
-        updateRowHighlight();
+    for (let i = 1; i <= 10; i++) {
+      const s1 = document.getElementById(`s${i}_1`);
+      const s2 = document.getElementById(`s${i}_2`);
+      if (s1) s1.value = (data.scores && data.scores[`s${i}_1`] !== undefined) ? data.scores[`s${i}_1`] : 0;
+      if (s2) s2.value = (data.scores && data.scores[`s${i}_2`] !== undefined) ? data.scores[`s${i}_2`] : 0;
     }
+    updateNames();
+    calculateTotal();
+    document.getElementById('dd_sync_status').textContent = '🟢 Đã đồng bộ Firebase · ' + new Date().toLocaleTimeString('vi-VN');
+  });
+}
 
-    function updateRowHighlight() {
-        for (let i = 1; i <= 10; i++) {
-            const row = document.getElementById(`row_${i}`);
-            if(row) row.classList.remove('active-row');
-        }
-        
-        if (currentMatch <= 10) {
-            const activeRow = document.getElementById(`row_${currentMatch}`);
-            if (activeRow) {
-                activeRow.classList.add('active-row');
-                const typeText = activeRow.cells[1].innerText;
-                const team1Players = activeRow.cells[2].innerText;
-                const team2Players = activeRow.cells[3].innerText;
-                document.getElementById('live_match_status').innerText = `TRẬN HIỆN TẠI (${currentMatch}/10): ${typeText} | ${team1Players} vs ${team2Players}`;
-            }
+function ddCreateTournament() {
+  const name = document.getElementById('dd_new_name').value.trim();
+  if (!name) { alert('Vui lòng nhập tên giải!'); return; }
+  const id = 'dd_' + Date.now();
+  ddDb.ref('dongdoi_list/' + id).set({ name, createdAt: Date.now() });
+  ddDb.ref('dongdoi_data/' + id).set({ currentMatch: 1, isMatchLocked: false, names: {}, scores: {} });
+  document.getElementById('dd_new_name').value = '';
+  setTimeout(() => {
+    document.getElementById('dd_select').value = id;
+    ddSwitchTournament(id);
+  }, 600);
+}
+
+function ddDeleteTournament() {
+  if (!ddCurrentId) return;
+  const input = prompt('Nhập mật khẩu Admin để xóa giải này:');
+  if (!input) return;
+  const hash = Array.from(new Uint8Array(
+    crypto.subtle ? null : []
+  ));
+  // So sánh thẳng với Firebase pass
+  if (input.trim() !== ddAdminPass) {
+    alert('❌ Mật khẩu không đúng!');
+    return;
+  }
+  if (!confirm(`Xóa giải "${ddTournamentsList[ddCurrentId]?.name}"? Không thể hoàn tác!`)) return;
+  ddDb.ref('dongdoi_list/' + ddCurrentId).remove();
+  ddDb.ref('dongdoi_data/' + ddCurrentId).remove();
+  ddCurrentId = null;
+}
+
+// ── GAME LOGIC ──
+function ddSave() {
+  if (!ddRef) return;
+  const names = {};
+  ['d1_n1','d1_m1','d1_m2','d1_m3','d1_m4','d2_n2','d2_n3','d2_m1','d2_m2','d2_m3'].forEach(k => {
+    const el = document.getElementById(k);
+    if (el) names[k] = el.value;
+  });
+  const scores = {};
+  for (let i = 1; i <= 10; i++) {
+    scores[`s${i}_1`] = document.getElementById(`s${i}_1`)?.value || 0;
+    scores[`s${i}_2`] = document.getElementById(`s${i}_2`)?.value || 0;
+  }
+  ddRef.update({ currentMatch: ddCurrentMatch, isMatchLocked: ddIsMatchLocked, names, scores });
+}
+
+function updateNames() {
+  const g = id => document.getElementById(id)?.value || id;
+  const d1 = { n1: g('d1_n1'), m1: g('d1_m1'), m2: g('d1_m2'), m3: g('d1_m3'), m4: g('d1_m4') };
+  const d2 = { n2: g('d2_n2'), n3: g('d2_n3'), m1: g('d2_m1'), m2: g('d2_m2'), m3: g('d2_m3') };
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
+  set('t1_d1', `${d1.n1} + ${d1.m1}`); set('t1_d2', `${d2.n2} + ${d2.m1}`);
+  set('t2_d1', `${d1.m2} + ${d1.m3}`); set('t2_d2', `${d2.m2} + ${d2.m3}`);
+  set('t3_d1', `${d1.n1} + ${d1.m2}`); set('t3_d2', `${d2.n3} + ${d2.m2}`);
+  set('t4_d1', `${d1.m1} + ${d1.m4}`); set('t4_d2', `${d2.m1} + ${d2.n2}`);
+  set('t5_d1', `${d1.m3} + ${d1.m4}`); set('t5_d2', `${d2.m3} + ${d2.n3}`);
+  set('t6_d1', `${d1.m2} + ${d1.m4}`); set('t6_d2', `${d2.n2} + ${d2.m1}`);
+  set('t7_d1', `${d1.n1} + ${d1.m3}`); set('t7_d2', `${d2.n3} + ${d2.m2}`);
+  set('t8_d1', `${d1.m1} + ${d1.m3}`); set('t8_d2', `${d2.m1} + ${d2.m2}`);
+  set('t9_d1', `${d1.m4} + ${d1.m2}`); set('t9_d2', `${d2.n2} + ${d2.m3}`);
+  set('t10_d1',`${d1.m3} + ${d1.m4}`); set('t10_d2',`${d2.n3} + ${d2.m1}`);
+  updateRowHighlight();
+}
+
+function updateRowHighlight() {
+  for (let i = 1; i <= 10; i++) {
+    const row = document.getElementById(`row_${i}`);
+    if (row) row.classList.remove('active-row');
+  }
+  if (ddCurrentMatch <= 10) {
+    const activeRow = document.getElementById(`row_${ddCurrentMatch}`);
+    if (activeRow) {
+      activeRow.classList.add('active-row');
+      const typeText = activeRow.cells[1].innerText;
+      const p1 = activeRow.cells[2].innerText;
+      const p2 = activeRow.cells[3].innerText;
+      document.getElementById('live_match_status').innerText = `TRẬN HIỆN TẠI (${ddCurrentMatch}/10): ${typeText} | ${p1} vs ${p2}`;
+    }
+  } else {
+    document.getElementById('live_match_status').innerText = 'GIẢI ĐẤU ĐÃ KẾT THÚC! 🏆';
+  }
+}
+
+function pressScore(team) {
+  if (ddCurrentMatch > 10 || ddIsMatchLocked) return;
+  const el = document.getElementById(`s${ddCurrentMatch}_${team}`);
+  if (el) { el.value = (parseInt(el.value) || 0) + 1; calculateTotal(); ddSave(); }
+}
+
+function calculateTotal() {
+  let t1 = 0, t2 = 0;
+  for (let i = 1; i <= 10; i++) {
+    t1 += parseInt(document.getElementById(`s${i}_1`)?.value) || 0;
+    t2 += parseInt(document.getElementById(`s${i}_2`)?.value) || 0;
+  }
+  document.getElementById('total_1').innerText = t1;
+  document.getElementById('total_2').innerText = t2;
+  document.getElementById('live_total_1').innerText = t1;
+  document.getElementById('live_total_2').innerText = t2;
+  if (ddCurrentMatch <= 10) {
+    const target = ddCurrentMatch * 21;
+    if (t1 >= target || t2 >= target) {
+      ddIsMatchLocked = true;
+      setTimeout(() => {
+        if (ddCurrentMatch === 10) {
+          const winner = t1 >= 210 ? 'ĐỘI 1' : 'ĐỘI 2';
+          alert(`🏆 XONG! ${winner} đạt mốc 210 và thắng toàn giải! 🎉`);
+          ddCurrentMatch = 11;
         } else {
-            document.getElementById('live_match_status').innerText = "GIẢI ĐẤU ĐÃ KẾT THÚC! 🏆";
+          alert(`🛑 STOP! Trận ${ddCurrentMatch} chạm mốc ${target} điểm!\nĐổi người rồi bấm OK để mở khóa Trận ${ddCurrentMatch + 1}.`);
+          ddCurrentMatch++;
+          ddIsMatchLocked = false;
+          updateNames();
         }
+        ddSave();
+      }, 50);
     }
+  }
+}
 
-    function pressScore(team) {
-        if (currentMatch > 10 || isMatchLocked) return;
+function ddResetScores() {
+  if (!confirm('Reset toàn bộ điểm về 0? (Giữ nguyên tên thành viên)')) return;
+  ddCurrentMatch = 1;
+  ddIsMatchLocked = false;
+  for (let i = 1; i <= 10; i++) {
+    const s1 = document.getElementById(`s${i}_1`);
+    const s2 = document.getElementById(`s${i}_2`);
+    if (s1) s1.value = 0;
+    if (s2) s2.value = 0;
+  }
+  calculateTotal();
+  updateNames();
+  ddSave();
+}
 
-        const inputId = `s${currentMatch}_${team}`;
-        const inputEl = document.getElementById(inputId);
-        if (inputEl) {
-            const currentInputValue = parseInt(inputEl.value) || 0;
-            inputEl.value = currentInputValue + 1;
-            calculateTotal();
-            saveAllData();
-        }
-    }
-
-    function calculateTotal() {
-        let total1 = 0; let total2 = 0;
-        for (let i = 1; i <= 10; i++) {
-            let s1 = parseInt(document.getElementById(`s${i}_1`).value) || 0;
-            let s2 = parseInt(document.getElementById(`s${i}_2`).value) || 0;
-            total1 += s1; total2 += s2;
-        }
-        
-        if(document.getElementById('total_1')) document.getElementById('total_1').innerText = total1;
-        if(document.getElementById('total_2')) document.getElementById('total_2').innerText = total2;
-        if(document.getElementById('live_total_1')) document.getElementById('live_total_1').innerText = total1;
-        if(document.getElementById('live_total_2')) document.getElementById('live_total_2').innerText = total2;
-
-        if (currentMatch <= 10) {
-            const targetScore = currentMatch * 21;
-            if (total1 >= targetScore || total2 >= targetScore) {
-                isMatchLocked = true;
-                
-                setTimeout(() => {
-                    if (currentMatch === 10) {
-                        const winner = total1 >= 210 ? "ĐỘI 1" : "ĐỘI 2";
-                        alert(`🏆 XONG! TRẬN CHUNG KẾT ĐÃ KẾT THÚC!\nChúc mừng ${winner} đã đạt mốc 210 và giành chiến thắng chung cuộc toàn giải! 🎉`);
-                        currentMatch = 11;
-                    } else {
-                        alert(`🛑 STOP! Trận ${currentMatch} đã chạm mốc ${targetScore} điểm!\n\nVui lòng đổi người, bấm OK để mở khóa đếm điểm cho Trận ${currentMatch + 1}.`);
-                        currentMatch++;
-                        isMatchLocked = false;
-                        updateNames();
-                        saveAllData();
-                    }
-                }, 50);
-            }
-        }
-    }
-
-    function saveAllData() {
-        const data = {
-            currentMatch: currentMatch,
-            scores: {},
-            names: {
-                d1_n1: document.getElementById('d1_n1').value, d1_m1: document.getElementById('d1_m1').value, d1_m2: document.getElementById('d1_m2').value, d1_m3: document.getElementById('d1_m3').value, d1_m4: document.getElementById('d1_m4').value,
-                d2_n2: document.getElementById('d2_n2').value, d2_n3: document.getElementById('d2_n3').value, d2_m1: document.getElementById('d2_m1').value, d2_m2: document.getElementById('d2_m2').value, d2_m3: document.getElementById('d2_m3').value
-            }
-        };
-
-        for (let i = 1; i <= 10; i++) {
-            data.scores[`s${i}_1`] = document.getElementById(`s${i}_1`).value;
-            data.scores[`s${i}_2`] = document.getElementById(`s${i}_2`).value;
-        }
-
-        localStorage.setItem('team10_tournament_data', JSON.stringify(data));
-    }
-
-    function loadSavedData() {
-        const savedData = localStorage.getItem('team10_tournament_data');
-        if (!savedData) {
-            updateNames();
-            return;
-        }
-
-        try {
-            const data = JSON.parse(savedData);
-            currentMatch = data.currentMatch || 1;
-
-            if (data.names) {
-                for (let key in data.names) {
-                    if (document.getElementById(key)) document.getElementById(key).value = data.names[key];
-                }
-            }
-
-            if (data.scores) {
-                for (let key in data.scores) {
-                    if (document.getElementById(key)) document.getElementById(key).value = data.scores[key];
-                }
-            }
-        } catch (e) {
-            console.error("Lỗi đọc dữ liệu, tiến hành reset:", e);
-        }
-
-        updateNames();
-        calculateTotal();
-    }
-
-    function resetTournament() {
-        if (confirm("⚠️ BẠN CÓ CHẮC CHẮN MUỐN RESET GIẢI ĐẤU?\nToàn bộ điểm số các trận sẽ bị xóa về 0 để chuẩn bị chơi giải mới.")) {
-            localStorage.removeItem('team10_tournament_data');
-            currentMatch = 1;
-            isMatchLocked = false;
-            for (let i = 1; i <= 10; i++) {
-                if(document.getElementById(`s${i}_1`)) document.getElementById(`s${i}_1`).value = 0;
-                if(document.getElementById(`s${i}_2`)) document.getElementById(`s${i}_2`).value = 0;
-            }
-            calculateTotal();
-            updateNames();
-        }
-    }
-    
-    window.onload = loadSavedData;
+updateNames();
 </script>
 </body>
 </html>
