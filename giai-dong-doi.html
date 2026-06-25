@@ -412,6 +412,7 @@ function pressScore(team, delta) {
   const newVal = Math.max(0, (parseInt(el.value) || 0) + delta);
   el.value = newVal;
   calculateTotal();
+  checkMatchMilestone();
   ddSave();
 }
 
@@ -425,31 +426,42 @@ function calculateTotal() {
   document.getElementById('total_2').innerText = t2;
   document.getElementById('live_total_1').innerText = t1;
   document.getElementById('live_total_2').innerText = t2;
+}
 
-  if (ddCurrentMatch <= 10) {
-    // Chỉ check điểm của trận HIỆN TẠI, không dùng tổng cộng dồn
-    const cur1 = parseInt(document.getElementById(`s${ddCurrentMatch}_1`)?.value) || 0;
-    const cur2 = parseInt(document.getElementById(`s${ddCurrentMatch}_2`)?.value) || 0;
-    const matchTarget = 21; // mỗi trận đánh đến 21
-    if (cur1 >= matchTarget || cur2 >= matchTarget) {
-      ddIsMatchLocked = true;
-      _ddScoreLocked = true;
-      setTimeout(() => {
-        if (ddCurrentMatch === 10) {
-          const winner = t1 > t2 ? 'ĐỘI 1' : 'ĐỘI 2';
-          alert(`🏆 XONG! ${winner} thắng toàn giải! 🎉`);
-          ddCurrentMatch = 11;
-        } else {
-          alert(`🛑 STOP! Trận ${ddCurrentMatch} đã đủ 21 điểm!\nĐổi người rồi bấm OK để mở khóa Trận ${ddCurrentMatch + 1}.`);
-          ddCurrentMatch++;
-          ddIsMatchLocked = false;
-          updateNames();
-        }
-        _ddScoreLocked = false;
-        ddSave();
-      }, 50);
+// Tách riêng: chỉ gọi sau khi pressScore, KHÔNG gọi từ Firebase sync
+function checkMatchMilestone() {
+  if (_ddScoreLocked || ddIsMatchLocked || ddCurrentMatch > 10) return;
+
+  // Snapshot ngay lúc này — tránh closure bị stale do Firebase
+  const matchNow = ddCurrentMatch;
+  const cur1 = parseInt(document.getElementById(`s${matchNow}_1`)?.value) || 0;
+  const cur2 = parseInt(document.getElementById(`s${matchNow}_2`)?.value) || 0;
+
+  if (cur1 < 21 && cur2 < 21) return; // chưa đủ điểm
+
+  ddIsMatchLocked = true;
+  _ddScoreLocked = true;
+
+  // Dùng alert đồng bộ (không setTimeout) để không bị stale
+  if (matchNow === 10) {
+    const winner = t1 > t2 ? 'ĐỘI 1' : 'ĐỘI 2';
+    // tính lại t1/t2 tại đây
+    let total1 = 0, total2 = 0;
+    for (let i = 1; i <= 10; i++) {
+      total1 += parseInt(document.getElementById(`s${i}_1`)?.value) || 0;
+      total2 += parseInt(document.getElementById(`s${i}_2`)?.value) || 0;
     }
+    const w = total1 > total2 ? 'ĐỘI 1' : 'ĐỘI 2';
+    alert(`🏆 XONG! ${w} thắng toàn giải! 🎉`);
+    ddCurrentMatch = 11;
+  } else {
+    alert(`🛑 STOP! Trận ${matchNow} đã đủ 21 điểm!\nĐổi người rồi bấm OK để mở khóa Trận ${matchNow + 1}.`);
+    ddCurrentMatch = matchNow + 1;
+    ddIsMatchLocked = false;
+    updateNames();
   }
+  _ddScoreLocked = false;
+  ddSave();
 }
 
 function ddResetScores() {
