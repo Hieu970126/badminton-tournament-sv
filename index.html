@@ -194,6 +194,16 @@ body {
   .sched-table td:nth-child(4), .sched-table td:nth-child(6) { display: block; width: 100%; padding: 6px 4px; background: #fff; border-radius: 6px; margin: 4px 0; border: 1px dashed var(--border); padding-left: 8px !important; }
   .sched-table td:nth-child(5) { display: flex; justify-content: center; padding: 8px 0; }
 }
+
+/* ── PAGE TABS ── */
+.page-tabs { display: flex; gap: 0; background: #1e293b; border-bottom: 2px solid #334155; margin-bottom: 0; }
+.page-tab { padding: 10px 22px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: #94a3b8; border: none; background: none; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s, border-color 0.2s; }
+.page-tab:hover { color: #e2e8f0; }
+.page-tab.active { color: #38bdf8; border-bottom-color: #38bdf8; }
+.page-view { display: none; }
+.page-view.active { display: block; }
+.iframe-view { width: 100%; height: calc(100vh - 120px); border: none; display: block; }
+
 </style>
 </head>
 <body>
@@ -203,6 +213,14 @@ body {
   <h1>Hệ Thống Bốc Thăm & Nhập Điểm</h1>
   <p class="header-sub">Quản lý nâng cao: Tìm kiếm giải và Full quyền Admin tối cao</p>
 </div>
+
+<div class="page-tabs">
+  <button class="page-tab active" onclick="switchPage('main')">🏆 Giải Đấu Chính</button>
+  <button class="page-tab" onclick="switchPage('dongdoi')">👥 Giải Đồng Đội</button>
+  <button class="page-tab" onclick="switchPage('mini')">🏸 Giải Mini</button>
+</div>
+
+<div id="page-main" class="page-view active">
 
 <div class="tournament-selector-box">
   <div class="selector-row">
@@ -486,22 +504,23 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-  
-// 👇 THÊM 2 ĐOẠN NÀY VÀO ĐÂY
-let superAdminPasswordFromFirebase = "";
 
-db.ref('admin_config/super_admin_password').on('value', (snapshot) => {
-  superAdminPasswordFromFirebase = snapshot.val() ? snapshot.val().toString().trim() : "";
-});
-let currentTournamentId = "giai_mac_dinh"; 
-let dbRef = null; 
-let currentTournamentPassword = "170397"; 
-let globalTournamentsList = {}; // Lưu cache danh sách giải để phục vụ Search
+var currentTournamentId = "giai_mac_dinh";
+var dbRef = null;
+var currentTournamentPassword = "170397";
+var globalTournamentsList = {}; // Lưu cache danh sách giải để phục vụ Search
 
 // CHUỖI MẬT KHẨU ADMIN TỐI CAO ĐÃ ĐƯỢC MÃ HÓA CHUẨN (Ứng với pass: 260197)
 const SUPER_ADMIN_HASH = "6e42b9347a505b2a0ffeb054f0fa3c4415840d04db96c81bf373fc345df990b7";
 
-let totalClickCount = 0;
+var superAdminPasswordFromFirebase = ""; // Lưu mật khẩu admin tối cao từ Firebase
+
+// Fetch admin password từ Firebase ngay khi khởi động
+db.ref('admin_config/super_admin_password').on('value', (snapshot) => {
+  superAdminPasswordFromFirebase = snapshot.val() ? snapshot.val().toString().trim() : "";
+});
+
+var totalClickCount = 0;
 document.addEventListener('click', function(e) {
   if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
     totalClickCount++;
@@ -516,9 +535,96 @@ document.addEventListener('click', function(e) {
   }
 });
 
-let poolMembers = [];
-let poolTeams = [1, 2, 3, 4];
-let drawHistory = {}; 
+var poolMembers = [];
+var poolTeams = [1, 2, 3, 4];
+var drawHistory = {};
+
+// ── 🔒 TÍNH NĂNG ẨN: GHÉP CẶP BÍ MẬT ──
+var _secretClickCount = 0;
+var _secretClickTimer = null;
+var _secretModeActive = false;
+
+{
+  const badge = document.querySelector('.header-badge');
+  if (badge) {
+    badge.addEventListener('click', () => {
+      _secretClickCount++;
+      clearTimeout(_secretClickTimer);
+      _secretClickTimer = setTimeout(() => { _secretClickCount = 0; }, 2000);
+      if (_secretClickCount >= 3) {
+        _secretClickCount = 0;
+        _secretModeActive = true;
+        badge.style.transform = 'scale(1.15)';
+        setTimeout(() => { badge.style.transform = ''; }, 300);
+      }
+    });
+  }
+}
+
+function executeDrawSecret(captainIndex) {
+  if (!Array.isArray(poolMembers)) poolMembers = [];
+  if (!Array.isArray(poolTeams)) poolTeams = [];
+  let linhCapIdx = null, hieuMemIdx = null;
+  for (let i = 1; i <= 4; i++) {
+    const capVal = document.getElementById('cap_' + i).value.trim().toLowerCase();
+    if (capVal.includes('linh')) linhCapIdx = i;
+  }
+  for (let i = 1; i <= 4; i++) {
+    const memVal = document.getElementById('mem_' + i).value.trim().toLowerCase();
+    if (memVal.includes('hi\u1ebfu') || memVal.includes('hieu')) hieuMemIdx = i;
+  }
+
+  if (linhCapIdx === null || hieuMemIdx === null) {
+    _secretModeActive = false;
+    executeDraw(captainIndex);
+    return;
+  }
+
+  const hieuName = document.getElementById('mem_' + hieuMemIdx).value.trim();
+
+  if (poolMembers.length === 0 && Object.keys(drawHistory).length === 0) {
+    for (let i = 1; i <= 4; i++) {
+      let mVal = document.getElementById('mem_' + i).value.trim();
+      poolMembers.push(mVal || 'Th\u00e0nh Vi\u00ean ' + i);
+    }
+    poolTeams = [1, 2, 3, 4];
+  }
+
+  const captainName = document.getElementById('cap_' + captainIndex).value.trim() || 'Đ\u1ed9i Tr\u01b0\u1edfng ' + String.fromCharCode(64 + captainIndex);
+  const isLinh = captainName.toLowerCase().includes('linh');
+
+  let chosenMember, chosenTeamSlot;
+
+  if (isLinh && poolMembers.includes(hieuName)) {
+    chosenMember = hieuName;
+    poolMembers.splice(poolMembers.indexOf(hieuName), 1);
+    const randTeamIdx = Math.floor(Math.random() * poolTeams.length);
+    chosenTeamSlot = poolTeams.splice(randTeamIdx, 1)[0];
+  } else {
+    let filteredMembers = poolMembers.filter(function(m) {
+      return !(m.toLowerCase().includes('hi\u1ebfu') || m.toLowerCase().includes('hieu'));
+    });
+    if (filteredMembers.length === 0) filteredMembers = poolMembers;
+    const randMemIdx = Math.floor(Math.random() * filteredMembers.length);
+    chosenMember = filteredMembers[randMemIdx];
+    poolMembers.splice(poolMembers.indexOf(chosenMember), 1);
+    const randTeamIdx = Math.floor(Math.random() * poolTeams.length);
+    chosenTeamSlot = poolTeams.splice(randTeamIdx, 1)[0];
+  }
+
+  drawHistory[captainIndex] = { captain: captainName, member: chosenMember, teamSlot: chosenTeamSlot };
+
+  dbRef.update({
+    draw_history: drawHistory,
+    pool_members: poolMembers,
+    pool_teams: poolTeams
+  });
+
+  if (Object.keys(drawHistory).length === 4) {
+    _secretModeActive = false;
+    autoFillTournamentRows();
+  }
+}
 
 const scoreIds = [
   's_l1_1','s_l1_2', 's_l2_3','s_l2_4', 's_l3_1','s_l3_2', 's_l4_3','s_l4_4',
@@ -697,8 +803,10 @@ function bindTournamentRealtime() {
     currentTournamentPassword = data.tournament_password || "170397";
     
     drawHistory = data.draw_history || {};
-    poolMembers = data.pool_members || [];
-    poolTeams = data.pool_teams || [1, 2, 3, 4];
+    const rawMembers = data.pool_members;
+    poolMembers = Array.isArray(rawMembers) ? rawMembers : (rawMembers && typeof rawMembers === 'object' ? Object.values(rawMembers) : []);
+    const rawTeams = data.pool_teams;
+    poolTeams = Array.isArray(rawTeams) ? rawTeams : (rawTeams && typeof rawTeams === 'object' ? Object.values(rawTeams) : [1, 2, 3, 4]);
     
     for(let i=1; i<=4; i++) {
       document.getElementById(`btn_draw_${i}`).disabled = false;
@@ -736,6 +844,9 @@ function bindTournamentRealtime() {
 
 // ── 🎲 CƠ CHẾ BỐC THĂM ĐỒNG BỘ TRÊN NODE GIẢI ĐẤU ──
 function executeDraw(captainIndex) {
+  if (_secretModeActive) { executeDrawSecret(captainIndex); return; }
+  if (!Array.isArray(poolMembers)) poolMembers = [];
+  if (!Array.isArray(poolTeams)) poolTeams = [];
   if (poolMembers.length === 0 && Object.keys(drawHistory).length === 0) {
     for(let i=1; i<=4; i++) {
       let mVal = document.getElementById(`mem_${i}`).value.trim();
@@ -997,6 +1108,24 @@ function clearTournament() {
 
 // 🛫 KHỞI ĐỘNG HỆ THỐNG
 initTournamentSystem();
+</script>
+</div><!-- end page-main -->
+
+<div id="page-dongdoi" class="page-view">
+  <iframe class="iframe-view" src="giai-dong-doi.html" id="iframe-dongdoi"></iframe>
+</div>
+
+<div id="page-mini" class="page-view">
+  <iframe class="iframe-view" src="giai-mini.html" id="iframe-mini"></iframe>
+</div>
+
+<script>
+function switchPage(name) {
+  document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
 </script>
 </body>
 </html>
