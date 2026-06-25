@@ -2,6 +2,8 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Giải Cầu Lông Mini</title>
 <style>
@@ -355,9 +357,38 @@ body {
   .setup-grid { grid-template-columns: 1fr; }
   .score-input { width: 32px; height: 28px; font-size: 0.8rem; }
 }
+
+/* ── TOURNAMENT MANAGER ── */
+.mini-tm-box { max-width: 780px; margin: 0 auto 20px; background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px 16px; }
+.mini-tm-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.mini-tm-row:last-child { margin-bottom: 0; border-top: 1px dashed #334155; padding-top: 10px; }
+.mini-tm-label { font-weight: 700; font-size: 0.82rem; min-width: 100px; color: #94a3b8; }
+.mini-tm-select { flex: 1; min-width: 160px; padding: 6px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; font-size: 0.82rem; color: #e0e6f0; }
+.mini-tm-input { flex: 1; min-width: 160px; padding: 6px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; font-size: 0.82rem; color: #e0e6f0; }
+.mini-tm-input::placeholder { color: #334155; }
+.mini-btn-create { padding: 6px 14px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+.mini-btn-delete { padding: 6px 14px; background: #ef4444; color: white; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+.mini-sync-status { text-align: center; font-size: 0.68rem; color: #475569; margin-bottom: 8px; }
+
 </style>
 </head>
 <body>
+
+
+<!-- TOURNAMENT MANAGER -->
+<div class="mini-tm-box">
+  <div class="mini-tm-row">
+    <span class="mini-tm-label">🏆 Chọn giải:</span>
+    <select class="mini-tm-select" id="mini_select" onchange="miniSwitchTournament(this.value)"><option>Đang tải...</option></select>
+    <button class="mini-btn-delete" onclick="miniDeleteTournament()">❌ Xóa giải</button>
+  </div>
+  <div class="mini-tm-row">
+    <span class="mini-tm-label">➕ Tạo giải:</span>
+    <input class="mini-tm-input" id="mini_new_name" placeholder="Tên giải đấu mới...">
+    <button class="mini-btn-create" onclick="miniCreateTournament()">Tạo & Thiết Lập</button>
+  </div>
+</div>
+<div class="mini-sync-status" id="mini_sync_status">⏳ Đang kết nối Firebase...</div>
 
 <div class="header">
   <h1>🏸 Giải Cầu Lông Mini</h1>
@@ -772,57 +803,148 @@ body {
 </div><!-- end main -->
 
 <script>
-// ─── CẤU TRÚC 9 TRẬN ───
-// match: [teamA, teamB]  (1-indexed: 1=Đội1, 2=Đội2, 3=Đội3)
-// lượt: 1=M1+N, 2=M1+M2, 3=M2+N
+// ── FIREBASE ──
+const miniFirebaseConfig = {
+  apiKey: "AIzaSyBuJcSMGQmVRQg8RZHMT4bR_FHQJQ_E_sA",
+  authDomain: "giai-cau-long-san-vuon.firebaseapp.com",
+  databaseURL: "https://giai-cau-long-san-vuon-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "giai-cau-long-san-vuon",
+  storageBucket: "giai-cau-long-san-vuon.appspot.com",
+  messagingSenderId: "490739341912",
+  appId: "1:490739341912:web:97c558dc2fa9ebb0bd882d"
+};
+if (!firebase.apps.length) { firebase.initializeApp(miniFirebaseConfig); }
+else { firebase.app(); }
+var miniDb = firebase.database();
+var miniCurrentId = null;
+var miniRef = null;
+var miniAdminPass = "";
+var miniTournamentsList = {};
+var miniListener = null;
+
+miniDb.ref('admin_config/super_admin_password').on('value', snap => {
+  miniAdminPass = snap.val() ? snap.val().toString().trim() : "";
+});
+
+// ── TOURNAMENT MANAGER ──
+miniDb.ref('mini_list').on('value', snap => {
+  miniTournamentsList = snap.val() || {};
+  const sel = document.getElementById('mini_select');
+  const prev = miniCurrentId;
+  sel.innerHTML = '';
+  const keys = Object.keys(miniTournamentsList);
+  if (keys.length === 0) {
+    sel.innerHTML = '<option value="">-- Chưa có giải --</option>';
+    document.getElementById('mini_sync_status').textContent = '⚠️ Chưa có giải nào';
+    return;
+  }
+  keys.forEach(k => {
+    const opt = document.createElement('option');
+    opt.value = k;
+    opt.textContent = miniTournamentsList[k].name || k;
+    sel.appendChild(opt);
+  });
+  if (prev && miniTournamentsList[prev]) {
+    sel.value = prev;
+  } else {
+    sel.value = keys[0];
+    miniSwitchTournament(keys[0]);
+  }
+});
+
+function miniSwitchTournament(id) {
+  if (!id) return;
+  miniCurrentId = id;
+  if (miniListener) miniRef && miniRef.off('value', miniListener);
+  miniRef = miniDb.ref('mini_data/' + id);
+  miniListener = miniRef.on('value', snap => {
+    const data = snap.val() || {};
+    const nameIds = ['t1n','t1m1','t1m2','t2n','t2m1','t2m2','t3n','t3m1','t3m2'];
+    if (data.names) {
+      nameIds.forEach(k => {
+        const el = document.getElementById(k);
+        if (el && data.names[k] !== undefined) el.value = data.names[k];
+      });
+    }
+    for (let n = 1; n <= 9; n++) {
+      const ea = document.getElementById('s' + n + 'a');
+      const eb = document.getElementById('s' + n + 'b');
+      if (ea) ea.value = (data.scores && data.scores['s'+n+'a'] !== undefined) ? data.scores['s'+n+'a'] : '';
+      if (eb) eb.value = (data.scores && data.scores['s'+n+'b'] !== undefined) ? data.scores['s'+n+'b'] : '';
+      calcMatch(n);
+    }
+    updateNames();
+    document.getElementById('mini_sync_status').textContent = '🟢 Đã đồng bộ Firebase · ' + new Date().toLocaleTimeString('vi-VN');
+  });
+}
+
+function miniCreateTournament() {
+  const name = document.getElementById('mini_new_name').value.trim();
+  if (!name) { alert('Vui lòng nhập tên giải!'); return; }
+  const id = 'mini_' + Date.now();
+  miniDb.ref('mini_list/' + id).set({ name, createdAt: Date.now() });
+  miniDb.ref('mini_data/' + id).set({ names: {}, scores: {} });
+  document.getElementById('mini_new_name').value = '';
+  setTimeout(() => {
+    document.getElementById('mini_select').value = id;
+    miniSwitchTournament(id);
+  }, 600);
+}
+
+function miniDeleteTournament() {
+  if (!miniCurrentId) return;
+  const input = prompt('Nhập mật khẩu Admin để xóa giải này:');
+  if (!input) return;
+  if (input.trim() !== miniAdminPass) { alert('❌ Mật khẩu không đúng!'); return; }
+  if (!confirm('Xóa giải "' + (miniTournamentsList[miniCurrentId]?.name || miniCurrentId) + '"? Không thể hoàn tác!')) return;
+  miniDb.ref('mini_list/' + miniCurrentId).remove();
+  miniDb.ref('mini_data/' + miniCurrentId).remove();
+  miniCurrentId = null;
+}
+
+function miniSave() {
+  if (!miniRef) return;
+  const nameIds = ['t1n','t1m1','t1m2','t2n','t2m1','t2m2','t3n','t3m1','t3m2'];
+  const names = {};
+  nameIds.forEach(k => { const el = document.getElementById(k); if (el) names[k] = el.value; });
+  const scores = {};
+  for (let n = 1; n <= 9; n++) {
+    scores['s'+n+'a'] = document.getElementById('s'+n+'a')?.value || '';
+    scores['s'+n+'b'] = document.getElementById('s'+n+'b')?.value || '';
+  }
+  miniRef.update({ names, scores });
+}
+
+// ── MATCH LOGIC (original, with save hook) ──
 const MATCHES = [
-  null, // index 0 unused
-  { a: 1, b: 2, luot: 1 }, // #1
-  { a: 2, b: 3, luot: 1 }, // #2
-  { a: 3, b: 1, luot: 1 }, // #3
-  { a: 1, b: 2, luot: 2 }, // #4
-  { a: 2, b: 3, luot: 2 }, // #5
-  { a: 3, b: 1, luot: 2 }, // #6
-  { a: 1, b: 2, luot: 3 }, // #7
-  { a: 2, b: 3, luot: 3 }, // #8
-  { a: 3, b: 1, luot: 3 }, // #9
+  null,
+  { a: 1, b: 2, luot: 1 }, { a: 2, b: 3, luot: 1 }, { a: 3, b: 1, luot: 1 },
+  { a: 1, b: 2, luot: 2 }, { a: 2, b: 3, luot: 2 }, { a: 3, b: 1, luot: 2 },
+  { a: 1, b: 2, luot: 3 }, { a: 2, b: 3, luot: 3 }, { a: 3, b: 1, luot: 3 },
 ];
 
-// member labels per lượt per team
 function getMemberLabel(team, luot) {
-  const n  = document.getElementById(`t${team}n`).value  || 'N';
-  const m1 = document.getElementById(`t${team}m1`).value || 'M1';
-  const m2 = document.getElementById(`t${team}m2`).value || 'M2';
-  if (luot === 1) return `${m1} · ${n}`;
-  if (luot === 2) return `${m1} · ${m2}`;
-  if (luot === 3) return `${m2} · ${n}`;
+  const n  = document.getElementById('t'+team+'n')?.value  || 'N';
+  const m1 = document.getElementById('t'+team+'m1')?.value || 'M1';
+  const m2 = document.getElementById('t'+team+'m2')?.value || 'M2';
+  if (luot === 1) return m1 + ' · ' + n;
+  if (luot === 2) return m1 + ' · ' + m2;
+  if (luot === 3) return m2 + ' · ' + n;
 }
 
-function getTeamName(t) {
-  return `Đội ${t}`;
-}
+function getTeamName(t) { return 'Đội ' + t; }
 
 function updateNames() {
-  // Update member displays in each match card
   const mapping = [
     null,
-    // #1: a=1 b=2 luot=1
     { elA: 'm-t1-l1',  elB: 'm-t2-l1',  tA: 1, tB: 2, l: 1 },
-    // #2: a=2 b=3 luot=1
     { elA: 'm-t2-l1b', elB: 'm-t3-l1',  tA: 2, tB: 3, l: 1 },
-    // #3: a=3 b=1 luot=1
     { elA: 'm-t3-l1b', elB: 'm-t1-l1b', tA: 3, tB: 1, l: 1 },
-    // #4: a=1 b=2 luot=2
     { elA: 'm-t1-l2',  elB: 'm-t2-l2',  tA: 1, tB: 2, l: 2 },
-    // #5: a=2 b=3 luot=2
     { elA: 'm-t2-l2b', elB: 'm-t3-l2',  tA: 2, tB: 3, l: 2 },
-    // #6: a=3 b=1 luot=2
     { elA: 'm-t3-l2b', elB: 'm-t1-l2b', tA: 3, tB: 1, l: 2 },
-    // #7: a=1 b=2 luot=3
     { elA: 'm-t1-l3',  elB: 'm-t2-l3',  tA: 1, tB: 2, l: 3 },
-    // #8: a=2 b=3 luot=3
     { elA: 'm-t2-l3b', elB: 'm-t3-l3',  tA: 2, tB: 3, l: 3 },
-    // #9: a=3 b=1 luot=3
     { elA: 'm-t3-l3b', elB: 'm-t1-l3b', tA: 3, tB: 1, l: 3 },
   ];
   for (let i = 1; i <= 9; i++) {
@@ -833,40 +955,29 @@ function updateNames() {
     if (elB) elB.textContent = getMemberLabel(m.tB, m.l);
   }
   updateRanking();
+  miniSave();
 }
 
-// ─── SCORE CALC ───
 function calcMatch(n) {
-  const a = parseInt(document.getElementById(`s${n}a`).value);
-  const b = parseInt(document.getElementById(`s${n}b`).value);
-  const res = document.getElementById(`res${n}`);
-
-  if (isNaN(a) || isNaN(b)) { res.innerHTML = ''; updateRanking(); return; }
-
+  const a = parseInt(document.getElementById('s'+n+'a').value);
+  const b = parseInt(document.getElementById('s'+n+'b').value);
+  const res = document.getElementById('res'+n);
+  if (isNaN(a) || isNaN(b)) { res.innerHTML = ''; updateRanking(); miniSave(); return; }
   const m = MATCHES[n];
   let html = '';
-  if (a > b) {
-    html = `<span class="win-tag">Đội ${m.a} thắng</span>`;
-  } else if (b > a) {
-    html = `<span class="win-tag">Đội ${m.b} thắng</span>`;
-  } else {
-    html = `<span style="color:#94a3b8">Hoà</span>`;
-  }
+  if (a > b)      html = '<span class="win-tag">Đội ' + m.a + ' thắng</span>';
+  else if (b > a) html = '<span class="win-tag">Đội ' + m.b + ' thắng</span>';
+  else            html = '<span style="color:#94a3b8">Hoà</span>';
   res.innerHTML = html;
   updateRanking();
+  miniSave();
 }
 
-// ─── RANKING ───
 function updateRanking() {
-  const stats = {
-    1: { w: 0, l: 0, pf: 0, pa: 0 },
-    2: { w: 0, l: 0, pf: 0, pa: 0 },
-    3: { w: 0, l: 0, pf: 0, pa: 0 },
-  };
-
+  const stats = { 1:{w:0,l:0,pf:0,pa:0}, 2:{w:0,l:0,pf:0,pa:0}, 3:{w:0,l:0,pf:0,pa:0} };
   for (let n = 1; n <= 9; n++) {
-    const a = parseInt(document.getElementById(`s${n}a`).value);
-    const b = parseInt(document.getElementById(`s${n}b`).value);
+    const a = parseInt(document.getElementById('s'+n+'a').value);
+    const b = parseInt(document.getElementById('s'+n+'b').value);
     if (isNaN(a) || isNaN(b)) continue;
     const m = MATCHES[n];
     stats[m.a].pf += a; stats[m.a].pa += b;
@@ -874,35 +985,13 @@ function updateRanking() {
     if (a > b)      { stats[m.a].w++; stats[m.b].l++; }
     else if (b > a) { stats[m.b].w++; stats[m.a].l++; }
   }
-
-  const teams = [1, 2, 3].map(t => ({
-    t,
-    name: getTeamName(t),
-    w: stats[t].w,
-    l: stats[t].l,
-    hs: stats[t].pf - stats[t].pa,
-    pf: stats[t].pf,
-  }));
-
-  teams.sort((x, y) => {
-    if (y.w !== x.w) return y.w - x.w;
-    if (y.hs !== x.hs) return y.hs - x.hs;
-    return y.pf - x.pf;
-  });
-
-  const medals = ['rn1','rn2','rn3'];
-  const stats_el = ['rs1','rs2','rs3'];
-  const pts_el = ['rp1','rp2','rp3'];
-
-  teams.forEach((tm, i) => {
-    document.getElementById(medals[i]).textContent = tm.name;
-    document.getElementById(stats_el[i]).textContent =
-      `W${tm.w} · L${tm.l} · HS: ${tm.hs >= 0 ? '+' : ''}${tm.hs}`;
-    document.getElementById(pts_el[i]).textContent = `${tm.w * 2}đ`;
-  });
+  const teams = [1,2,3].map(t => ({ t, name: getTeamName(t), w: stats[t].w, l: stats[t].l, hs: stats[t].pf - stats[t].pa, pf: stats[t].pf }));
+  teams.sort((x,y) => { if (y.w!==x.w) return y.w-x.w; if (y.hs!==x.hs) return y.hs-x.hs; return y.pf-x.pf; });
+  ['rn1','rn2','rn3'].forEach((id,i) => { document.getElementById(id).textContent = teams[i].name; });
+  ['rs1','rs2','rs3'].forEach((id,i) => { document.getElementById(id).textContent = 'W'+teams[i].w+' · L'+teams[i].l+' · HS: '+(teams[i].hs>=0?'+':'')+teams[i].hs; });
+  ['rp1','rp2','rp3'].forEach((id,i) => { document.getElementById(id).textContent = (teams[i].w*2)+'đ'; });
 }
 
-// init
 updateNames();
 </script>
 </body>
