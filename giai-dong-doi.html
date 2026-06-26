@@ -347,11 +347,11 @@ function ddCheckScoreInput(el) {
   const pass = document.getElementById('dd_ref_pass')?.value || '';
   if (!ddCheckPermission(pass)) {
     alert('🔒 Sai mật khẩu trọng tài!');
-    // revert via Firebase sync
     return;
   }
   el.removeAttribute('readonly');
   calculateTotal();
+  checkMatchMilestone();
   ddSave();
 }
 
@@ -394,12 +394,7 @@ function updateRowHighlight() {
   }
 }
 
-function ddSelectMatch(val) {
-  ddCurrentMatch = parseInt(val);
-  ddIsMatchLocked = false;
-  updateRowHighlight();
-  ddSave();
-}
+
 
 var _ddScoreLocked = false;
 
